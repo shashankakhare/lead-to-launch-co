@@ -14,16 +14,252 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      orders: {
+        Row: {
+          amount_charged: number
+          amount_usd: number
+          cashfree_order_id: string | null
+          cashfree_payment_id: string | null
+          cashfree_payment_session_id: string | null
+          created_at: string
+          currency: string
+          id: string
+          package: Database["public"]["Enums"]["package_slug"]
+          status: Database["public"]["Enums"]["order_status"]
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          amount_charged: number
+          amount_usd: number
+          cashfree_order_id?: string | null
+          cashfree_payment_id?: string | null
+          cashfree_payment_session_id?: string | null
+          created_at?: string
+          currency?: string
+          id?: string
+          package: Database["public"]["Enums"]["package_slug"]
+          status?: Database["public"]["Enums"]["order_status"]
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          amount_charged?: number
+          amount_usd?: number
+          cashfree_order_id?: string | null
+          cashfree_payment_id?: string | null
+          cashfree_payment_session_id?: string | null
+          created_at?: string
+          currency?: string
+          id?: string
+          package?: Database["public"]["Enums"]["package_slug"]
+          status?: Database["public"]["Enums"]["order_status"]
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          company: string | null
+          created_at: string
+          email: string | null
+          full_name: string | null
+          id: string
+          phone: string | null
+          updated_at: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          company?: string | null
+          created_at?: string
+          email?: string | null
+          full_name?: string | null
+          id: string
+          phone?: string | null
+          updated_at?: string
+        }
+        Update: {
+          avatar_url?: string | null
+          company?: string | null
+          created_at?: string
+          email?: string | null
+          full_name?: string | null
+          id?: string
+          phone?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      project_requirements: {
+        Row: {
+          brand_colors: string | null
+          business_name: string | null
+          content_notes: string | null
+          created_at: string
+          industry: string | null
+          logo_url: string | null
+          order_id: string
+          reference_images: Json
+          reference_sites: string | null
+          submitted: boolean
+          updated_at: string
+        }
+        Insert: {
+          brand_colors?: string | null
+          business_name?: string | null
+          content_notes?: string | null
+          created_at?: string
+          industry?: string | null
+          logo_url?: string | null
+          order_id: string
+          reference_images?: Json
+          reference_sites?: string | null
+          submitted?: boolean
+          updated_at?: string
+        }
+        Update: {
+          brand_colors?: string | null
+          business_name?: string | null
+          content_notes?: string | null
+          created_at?: string
+          industry?: string | null
+          logo_url?: string | null
+          order_id?: string
+          reference_images?: Json
+          reference_sites?: string | null
+          submitted?: boolean
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "project_requirements_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: true
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      project_updates: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          id: string
+          message: string | null
+          order_id: string
+          stage: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          message?: string | null
+          order_id: string
+          stage: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          message?: string | null
+          order_id?: string
+          stage?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "project_updates_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ratings: {
+        Row: {
+          created_at: string
+          id: string
+          order_id: string
+          review: string | null
+          stars: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          order_id: string
+          review?: string | null
+          stars: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          order_id?: string
+          review?: string | null
+          stars?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ratings_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: true
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin" | "client"
+      order_status:
+        | "pending_payment"
+        | "paid"
+        | "requirements_pending"
+        | "in_progress"
+        | "review"
+        | "delivered"
+        | "cancelled"
+      package_slug: "one_page" | "five_page" | "ten_page"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +386,18 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin", "client"],
+      order_status: [
+        "pending_payment",
+        "paid",
+        "requirements_pending",
+        "in_progress",
+        "review",
+        "delivered",
+        "cancelled",
+      ],
+      package_slug: ["one_page", "five_page", "ten_page"],
+    },
   },
 } as const
