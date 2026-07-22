@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AdminLoginRouteImport } from './routes/admin-login'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
@@ -36,6 +37,11 @@ import { Route as ApiPublicWebhooksCashfreeRouteImport } from './routes/api/publ
 import { Route as AuthenticatedBillingScopeIdRouteImport } from './routes/_authenticated/billing.scope.$id'
 import { Route as AuthenticatedAdminOrdersIdRouteImport } from './routes/_authenticated/admin.orders.$id'
 
+const ResetPasswordRoute = ResetPasswordRouteImport.update({
+  id: '/reset-password',
+  path: '/reset-password',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
   path: '/auth',
@@ -177,6 +183,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/admin-login': typeof AdminLoginRoute
   '/auth': typeof AuthRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/admin': typeof AuthenticatedAdminRouteWithChildren
   '/billing': typeof AuthenticatedBillingRouteWithChildren
   '/dashboard': typeof AuthenticatedDashboardRoute
@@ -204,6 +211,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/admin-login': typeof AdminLoginRoute
   '/auth': typeof AuthRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/billing': typeof AuthenticatedBillingRouteWithChildren
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/files': typeof AuthenticatedFilesRoute
@@ -231,6 +239,7 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/admin-login': typeof AdminLoginRoute
   '/auth': typeof AuthRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRouteWithChildren
   '/_authenticated/billing': typeof AuthenticatedBillingRouteWithChildren
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
@@ -260,6 +269,7 @@ export interface FileRouteTypes {
     | '/'
     | '/admin-login'
     | '/auth'
+    | '/reset-password'
     | '/admin'
     | '/billing'
     | '/dashboard'
@@ -287,6 +297,7 @@ export interface FileRouteTypes {
     | '/'
     | '/admin-login'
     | '/auth'
+    | '/reset-password'
     | '/billing'
     | '/dashboard'
     | '/files'
@@ -313,6 +324,7 @@ export interface FileRouteTypes {
     | '/_authenticated'
     | '/admin-login'
     | '/auth'
+    | '/reset-password'
     | '/_authenticated/admin'
     | '/_authenticated/billing'
     | '/_authenticated/dashboard'
@@ -342,6 +354,7 @@ export interface RootRouteChildren {
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AdminLoginRoute: typeof AdminLoginRoute
   AuthRoute: typeof AuthRoute
+  ResetPasswordRoute: typeof ResetPasswordRoute
   CheckoutReturnRoute: typeof CheckoutReturnRoute
   ApiPublicWebhooksCashfreeRoute: typeof ApiPublicWebhooksCashfreeRoute
   LovableEmailAuthPreviewRoute: typeof LovableEmailAuthPreviewRoute
@@ -350,6 +363,13 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/reset-password': {
+      id: '/reset-password'
+      path: '/reset-password'
+      fullPath: '/reset-password'
+      preLoaderRoute: typeof ResetPasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/auth': {
       id: '/auth'
       path: '/auth'
@@ -614,6 +634,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AdminLoginRoute: AdminLoginRoute,
   AuthRoute: AuthRoute,
+  ResetPasswordRoute: ResetPasswordRoute,
   CheckoutReturnRoute: CheckoutReturnRoute,
   ApiPublicWebhooksCashfreeRoute: ApiPublicWebhooksCashfreeRoute,
   LovableEmailAuthPreviewRoute: LovableEmailAuthPreviewRoute,
