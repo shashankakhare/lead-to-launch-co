@@ -128,6 +128,7 @@ export const syncOrderStatus = createServerFn({ method: "POST" })
     const { fetchCashfreeOrder, isCashfreePaidStatus, isPaymentTestMode } = await import("./cashfree.server");
     const isPaid = order.status === "paid"
       || isPaymentTestMode()
+      || !order.cashfree_order_id
       || (order.cashfree_order_id
         ? isCashfreePaidStatus((await fetchCashfreeOrder(order.cashfree_order_id)).order_status)
         : false);
@@ -160,6 +161,7 @@ export const syncCheckoutReturnStatus = createServerFn({ method: "POST" })
     const { fetchCashfreeOrder, isCashfreePaidStatus, isPaymentTestMode } = await import("./cashfree.server");
     const isPaid = order.status === "paid"
       || isPaymentTestMode()
+      || !order.cashfree_order_id
       || (order.cashfree_order_id
         ? isCashfreePaidStatus((await fetchCashfreeOrder(order.cashfree_order_id)).order_status)
         : false);
