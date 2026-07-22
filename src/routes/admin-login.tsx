@@ -101,9 +101,40 @@ function AdminLoginPage() {
           </Button>
         </form>
 
-        <p className="text-sm text-center text-muted-foreground">
-          <a href="/auth" className="text-primary hover:underline">Client login</a>
-        </p>
+        <div className="space-y-2 text-center text-sm">
+          <button
+            type="button"
+            onClick={() => { setResetOpen((v) => !v); setResetMsg(null); setResetEmail(email); }}
+            className="text-primary hover:underline"
+          >
+            Forgot password?
+          </button>
+          <div>
+            <a href="/auth" className="text-muted-foreground hover:underline">Client login</a>
+          </div>
+        </div>
+
+        {resetOpen && (
+          <form onSubmit={handleReset} className="space-y-3 pt-2 border-t">
+            <p className="text-sm text-muted-foreground">
+              Enter your admin email. We'll send a secure link to reset your password.
+            </p>
+            <div className="space-y-2">
+              <Label htmlFor="reset-email">Admin email</Label>
+              <Input
+                id="reset-email"
+                type="email"
+                value={resetEmail}
+                onChange={(e) => setResetEmail(e.target.value)}
+                required
+              />
+            </div>
+            {resetMsg && <p className="text-sm text-muted-foreground">{resetMsg}</p>}
+            <Button type="submit" variant="outline" className="w-full" disabled={resetBusy}>
+              {resetBusy ? "Sending…" : "Send reset link"}
+            </Button>
+          </form>
+        )}
       </Card>
     </div>
   );
