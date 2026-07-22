@@ -23,6 +23,27 @@ function AdminLoginPage() {
   const [password, setPassword] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [resetOpen, setResetOpen] = useState(false);
+  const [resetEmail, setResetEmail] = useState("");
+  const [resetBusy, setResetBusy] = useState(false);
+  const [resetMsg, setResetMsg] = useState<string | null>(null);
+
+  async function handleReset(e: React.FormEvent) {
+    e.preventDefault();
+    setResetBusy(true);
+    setResetMsg(null);
+    try {
+      const { error: resetError } = await supabase.auth.resetPasswordForEmail(resetEmail, {
+        redirectTo: `${window.location.origin}/reset-password`,
+      });
+      if (resetError) throw resetError;
+      setResetMsg("If that email exists, a reset link has been sent. Check your inbox.");
+    } catch (err) {
+      setResetMsg(err instanceof Error ? err.message : "Could not send reset email");
+    } finally {
+      setResetBusy(false);
+    }
+  }
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
