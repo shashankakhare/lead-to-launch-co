@@ -28,8 +28,8 @@ function AdminLayout() {
         {tabs.map((t) => (
           <Link
             key={t.to}
-            to={t.to}
-            activeOptions={{ exact: t.exact }}
+            to={t.to as any}
+            activeOptions={{ exact: !!t.exact }}
             activeProps={{ className: "font-semibold text-foreground border-b-2 border-primary pb-3 -mb-3" }}
             inactiveProps={{ className: "text-muted-foreground hover:text-foreground" }}
           >
