@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { Reveal } from "@/components/Reveal";
 import portfolioStudio from "@/assets/portfolio-studio.jpg";
@@ -59,11 +59,11 @@ function Nav() {
           </div>
         </div>
         <div className="flex items-center gap-4">
-          <a href="/portal" className="hidden sm:inline text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
+          <Link to="/dashboard" className="hidden sm:inline text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
             Client login
-          </a>
+          </Link>
           <a
-            href="#start"
+            href="#pricing"
             className="bg-foreground text-background px-4 py-2 rounded-full text-sm font-medium hover:opacity-90 transition-all"
           >
             Get started
@@ -212,6 +212,7 @@ function Work() {
 function Pricing() {
   const tiers = [
     {
+      slug: "one_page" as const,
       name: "The Solo",
       price: "$299",
       blurb: "Perfect for landing pages.",
@@ -220,6 +221,7 @@ function Pricing() {
       featured: false,
     },
     {
+      slug: "five_page" as const,
       name: "The Business",
       price: "$799",
       blurb: "Comprehensive 5-page site.",
@@ -233,6 +235,7 @@ function Pricing() {
       featured: true,
     },
     {
+      slug: "ten_page" as const,
       name: "The Growth",
       price: "$1,499",
       blurb: "10-page powerhouse.",
@@ -283,8 +286,9 @@ function Pricing() {
                     </li>
                   ))}
                 </ul>
-                <a
-                  href="#start"
+                <Link
+                  to="/checkout/$package"
+                  params={{ package: t.slug }}
                   className={`w-full py-3 rounded-xl font-semibold text-center transition-all ${
                     t.featured
                       ? "bg-accent text-accent-foreground hover:opacity-90 shadow-lg shadow-accent/20"
@@ -292,7 +296,7 @@ function Pricing() {
                   }`}
                 >
                   {t.cta}
-                </a>
+                </Link>
               </div>
             </Reveal>
           ))}

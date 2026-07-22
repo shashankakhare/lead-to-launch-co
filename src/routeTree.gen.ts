@@ -9,38 +9,141 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as AuthRouteImport } from './routes/auth'
+import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as CheckoutReturnRouteImport } from './routes/checkout.return'
+import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
+import { Route as AuthenticatedOrdersIdRouteImport } from './routes/_authenticated/orders.$id'
+import { Route as AuthenticatedCheckoutPackageRouteImport } from './routes/_authenticated/checkout.$package'
+import { Route as ApiPublicWebhooksCashfreeRouteImport } from './routes/api/public/webhooks/cashfree'
 
+const AuthRoute = AuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
+  id: '/_authenticated',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CheckoutReturnRoute = CheckoutReturnRouteImport.update({
+  id: '/checkout/return',
+  path: '/checkout/return',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedOrdersIdRoute = AuthenticatedOrdersIdRouteImport.update({
+  id: '/orders/$id',
+  path: '/orders/$id',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedCheckoutPackageRoute =
+  AuthenticatedCheckoutPackageRouteImport.update({
+    id: '/checkout/$package',
+    path: '/checkout/$package',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const ApiPublicWebhooksCashfreeRoute =
+  ApiPublicWebhooksCashfreeRouteImport.update({
+    id: '/api/public/webhooks/cashfree',
+    path: '/api/public/webhooks/cashfree',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
+  '/dashboard': typeof AuthenticatedDashboardRoute
+  '/checkout/return': typeof CheckoutReturnRoute
+  '/checkout/$package': typeof AuthenticatedCheckoutPackageRoute
+  '/orders/$id': typeof AuthenticatedOrdersIdRoute
+  '/api/public/webhooks/cashfree': typeof ApiPublicWebhooksCashfreeRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
+  '/dashboard': typeof AuthenticatedDashboardRoute
+  '/checkout/return': typeof CheckoutReturnRoute
+  '/checkout/$package': typeof AuthenticatedCheckoutPackageRoute
+  '/orders/$id': typeof AuthenticatedOrdersIdRoute
+  '/api/public/webhooks/cashfree': typeof ApiPublicWebhooksCashfreeRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
+  '/auth': typeof AuthRoute
+  '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
+  '/checkout/return': typeof CheckoutReturnRoute
+  '/_authenticated/checkout/$package': typeof AuthenticatedCheckoutPackageRoute
+  '/_authenticated/orders/$id': typeof AuthenticatedOrdersIdRoute
+  '/api/public/webhooks/cashfree': typeof ApiPublicWebhooksCashfreeRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/auth'
+    | '/dashboard'
+    | '/checkout/return'
+    | '/checkout/$package'
+    | '/orders/$id'
+    | '/api/public/webhooks/cashfree'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/auth'
+    | '/dashboard'
+    | '/checkout/return'
+    | '/checkout/$package'
+    | '/orders/$id'
+    | '/api/public/webhooks/cashfree'
+  id:
+    | '__root__'
+    | '/'
+    | '/_authenticated'
+    | '/auth'
+    | '/_authenticated/dashboard'
+    | '/checkout/return'
+    | '/_authenticated/checkout/$package'
+    | '/_authenticated/orders/$id'
+    | '/api/public/webhooks/cashfree'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
+  AuthRoute: typeof AuthRoute
+  CheckoutReturnRoute: typeof CheckoutReturnRoute
+  ApiPublicWebhooksCashfreeRoute: typeof ApiPublicWebhooksCashfreeRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated': {
+      id: '/_authenticated'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof AuthenticatedRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -48,11 +151,65 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/checkout/return': {
+      id: '/checkout/return'
+      path: '/checkout/return'
+      fullPath: '/checkout/return'
+      preLoaderRoute: typeof CheckoutReturnRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/dashboard': {
+      id: '/_authenticated/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof AuthenticatedDashboardRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/orders/$id': {
+      id: '/_authenticated/orders/$id'
+      path: '/orders/$id'
+      fullPath: '/orders/$id'
+      preLoaderRoute: typeof AuthenticatedOrdersIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/checkout/$package': {
+      id: '/_authenticated/checkout/$package'
+      path: '/checkout/$package'
+      fullPath: '/checkout/$package'
+      preLoaderRoute: typeof AuthenticatedCheckoutPackageRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/api/public/webhooks/cashfree': {
+      id: '/api/public/webhooks/cashfree'
+      path: '/api/public/webhooks/cashfree'
+      fullPath: '/api/public/webhooks/cashfree'
+      preLoaderRoute: typeof ApiPublicWebhooksCashfreeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
+interface AuthenticatedRouteRouteChildren {
+  AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
+  AuthenticatedCheckoutPackageRoute: typeof AuthenticatedCheckoutPackageRoute
+  AuthenticatedOrdersIdRoute: typeof AuthenticatedOrdersIdRoute
+}
+
+const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
+  AuthenticatedCheckoutPackageRoute: AuthenticatedCheckoutPackageRoute,
+  AuthenticatedOrdersIdRoute: AuthenticatedOrdersIdRoute,
+}
+
+const AuthenticatedRouteRouteWithChildren =
+  AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
+  AuthRoute: AuthRoute,
+  CheckoutReturnRoute: CheckoutReturnRoute,
+  ApiPublicWebhooksCashfreeRoute: ApiPublicWebhooksCashfreeRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

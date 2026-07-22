@@ -1,0 +1,195 @@
+import { createServerFn } from "@tanstack/react-start";
+import { getRequestHost } from "@tanstack/react-start/server";
+import { z } from "zod";
+import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { PACKAGES, type PackageSlug } from "./packages";
+
+const PackageEnum = z.enum(["one_page", "five_page", "ten_page"]);
+
+export const createCheckout = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: { packageSlug: PackageSlug }) =>
+    z.object({ packageSlug: PackageEnum }).parse(input),
+  )
+  .handler(async ({ data, context }) => {
+    const pkg = PACKAGES[data.packageSlug];
+    const { supabase, userId, claims } = context;
+
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("full_name, phone, email")
+      .eq("id", userId)
+      .maybeSingle();
+
+    const { data: order, error: insertErr } = await supabase
+      .from("orders")
+      .insert({
+        user_id: userId,
+        package: data.packageSlug,
+        amount_usd: pkg.priceUsd,
+        amount_charged: pkg.priceUsd,
+        currency: "USD",
+        status: "pending_payment",
+      })
+      .select("id")
+      .single();
+    if (insertErr || !order) throw new Error(insertErr?.message ?? "Failed to create order");
+
+    const host = getRequestHost();
+    const proto = host.startsWith("localhost") ? "http" : "https";
+    const origin = `${proto}://${host}`;
+
+    const { createCashfreeOrder, cashfreeMode } = await import("./cashfree.server");
+    const cf = await createCashfreeOrder({
+      orderId: order.id,
+      amount: pkg.priceUsd,
+      currency: "USD",
+      customer: {
+        id: userId,
+        email: profile?.email ?? (claims.email as string) ?? "customer@example.com",
+        phone: profile?.phone ?? "0000000000",
+        name: profile?.full_name ?? undefined,
+      },
+      returnUrl: `${origin}/checkout/return?order_id={order_id}`,
+      notifyUrl: `${origin}/api/public/webhooks/cashfree`,
+    });
+
+    await supabase
+      .from("orders")
+      .update({ cashfree_order_id: cf.orderId, cashfree_payment_session_id: cf.paymentSessionId })
+      .eq("id", order.id);
+
+    return { orderId: order.id, paymentSessionId: cf.paymentSessionId, mode: cashfreeMode() };
+  });
+
+export const listMyOrders = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { data, error } = await context.supabase
+      .from("orders")
+      .select("id, package, amount_usd, currency, status, created_at")
+      .order("created_at", { ascending: false });
+    if (error) throw new Error(error.message);
+    return data ?? [];
+  });
+
+export const getMyOrder = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: { orderId: string }) =>
+    z.object({ orderId: z.string().uuid() }).parse(input),
+  )
+  .handler(async ({ data, context }) => {
+    const { supabase } = context;
+    const [{ data: order }, { data: req }, { data: updates }, { data: rating }] = await Promise.all([
+      supabase.from("orders").select("*").eq("id", data.orderId).maybeSingle(),
+      supabase.from("project_requirements").select("*").eq("order_id", data.orderId).maybeSingle(),
+      supabase
+        .from("project_updates")
+        .select("*")
+        .eq("order_id", data.orderId)
+        .order("created_at", { ascending: true }),
+      supabase.from("ratings").select("*").eq("order_id", data.orderId).maybeSingle(),
+    ]);
+    if (!order) throw new Error("Order not found");
+    return { order, requirements: req, updates: updates ?? [], rating };
+  });
+
+export const syncOrderStatus = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: { orderId: string }) =>
+    z.object({ orderId: z.string().uuid() }).parse(input),
+  )
+  .handler(async ({ data, context }) => {
+    const { supabase, userId } = context;
+    const { data: order } = await supabase
+      .from("orders")
+      .select("id, user_id, status, cashfree_order_id")
+      .eq("id", data.orderId)
+      .maybeSingle();
+    if (!order || order.user_id !== userId) throw new Error("Order not found");
+    if (order.status !== "pending_payment") return { status: order.status };
+
+    const { fetchCashfreeOrder } = await import("./cashfree.server");
+    const cf = await fetchCashfreeOrder(order.cashfree_order_id ?? order.id);
+    if (cf.order_status === "PAID") {
+      const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+      await supabaseAdmin
+        .from("orders")
+        .update({ status: "requirements_pending" })
+        .eq("id", order.id)
+        .eq("status", "pending_payment");
+      // Trigger will create requirements + initial update on transition to 'paid'.
+      // We store 'requirements_pending' to move the client straight to next step.
+      // Ensure requirements row exists (trigger fires only on 'paid').
+      await supabaseAdmin
+        .from("project_requirements")
+        .upsert({ order_id: order.id }, { onConflict: "order_id" });
+      return { status: "requirements_pending" as const };
+    }
+    return { status: order.status };
+  });
+
+const RequirementsSchema = z.object({
+  orderId: z.string().uuid(),
+  businessName: z.string().max(200).optional(),
+  industry: z.string().max(200).optional(),
+  brandColors: z.string().max(500).optional(),
+  referenceSites: z.string().max(2000).optional(),
+  contentNotes: z.string().max(10000).optional(),
+  logoUrl: z.string().url().optional().or(z.literal("")),
+  referenceImages: z.array(z.string().url()).max(20).optional(),
+  submit: z.boolean().optional(),
+});
+
+export const saveRequirements = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: z.infer<typeof RequirementsSchema>) => RequirementsSchema.parse(input))
+  .handler(async ({ data, context }) => {
+    const { supabase } = context;
+    const patch = {
+      order_id: data.orderId,
+      business_name: data.businessName ?? null,
+      industry: data.industry ?? null,
+      brand_colors: data.brandColors ?? null,
+      reference_sites: data.referenceSites ?? null,
+      content_notes: data.contentNotes ?? null,
+      logo_url: data.logoUrl || null,
+      reference_images: data.referenceImages ?? [],
+      submitted: data.submit ?? false,
+    };
+    const { error } = await supabase
+      .from("project_requirements")
+      .upsert(patch, { onConflict: "order_id" });
+    if (error) throw new Error(error.message);
+    if (data.submit) {
+      await supabase.from("orders").update({ status: "in_progress" }).eq("id", data.orderId);
+    }
+    return { ok: true };
+  });
+
+export const rateOrder = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: { orderId: string; stars: number; review?: string }) =>
+    z
+      .object({
+        orderId: z.string().uuid(),
+        stars: z.number().int().min(1).max(5),
+        review: z.string().max(2000).optional(),
+      })
+      .parse(input),
+  )
+  .handler(async ({ data, context }) => {
+    const { error } = await context.supabase
+      .from("ratings")
+      .upsert(
+        {
+          order_id: data.orderId,
+          user_id: context.userId,
+          stars: data.stars,
+          review: data.review ?? null,
+        },
+        { onConflict: "order_id" },
+      );
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
