@@ -56,3 +56,30 @@ export const PACKAGES: Record<
 export function getPackage(slug: string): (typeof PACKAGES)[PackageSlug] | null {
   return (PACKAGES as Record<string, (typeof PACKAGES)[PackageSlug]>)[slug] ?? null;
 }
+
+export type ScopeAddonKind = "extra_page" | "extra_revision" | "rush" | "custom";
+
+export const SCOPE_ADDONS: Record<
+  Exclude<ScopeAddonKind, "custom">,
+  { kind: ScopeAddonKind; title: string; description: string; priceUsd: number }
+> = {
+  extra_page: {
+    kind: "extra_page",
+    title: "Extra page",
+    description: "Add one more designed & developed page to your site.",
+    priceUsd: 99,
+  },
+  extra_revision: {
+    kind: "extra_revision",
+    title: "Extra revision round",
+    description: "One additional round of design/content revisions.",
+    priceUsd: 49,
+  },
+  rush: {
+    kind: "rush",
+    title: "Rush 2-day delivery",
+    description: "Fast-track your build to 2 days instead of 4.",
+    priceUsd: 199,
+  },
+};
+
