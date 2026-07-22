@@ -24,6 +24,20 @@ export function cashfreeMode(): "sandbox" | "production" | "mock" {
   return creds().isSandbox ? "sandbox" : "production";
 }
 
+export function isPaymentTestMode(): boolean {
+  if (isMockPayments()) return true;
+  try {
+    return creds().isSandbox;
+  } catch {
+    return true;
+  }
+}
+
+export function isCashfreePaidStatus(status?: string | null): boolean {
+  const normalized = status?.toUpperCase();
+  return normalized === "PAID" || normalized === "SUCCESS";
+}
+
 
 export type CreateOrderInput = {
   orderId: string;
@@ -83,6 +97,7 @@ export async function fetchCashfreeOrder(orderId: string) {
   });
   const json = (await res.json()) as {
     order_status?: string;
+    payment_status?: string;
     order_id?: string;
     cf_order_id?: string | number;
     message?: string;
