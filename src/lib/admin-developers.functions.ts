@@ -76,10 +76,11 @@ export const getDeveloper = createServerFn({ method: "GET" })
 
 export const createDeveloper = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: { email: string; fullName?: string; phone?: string; hourlyRate?: number }) =>
+  .inputValidator((i: { email: string; password: string; fullName?: string; phone?: string; hourlyRate?: number }) =>
     z
       .object({
         email: z.string().email().max(255),
+        password: z.string().min(8).max(72),
         fullName: z.string().max(120).optional(),
         phone: z.string().max(40).optional(),
         hourlyRate: z.number().min(0).max(10000).optional(),
@@ -90,7 +91,6 @@ export const createDeveloper = createServerFn({ method: "POST" })
     await assertAdmin(context.supabase, context.userId);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
-    // Find or create user
     const { data: existing } = await supabaseAdmin
       .from("profiles")
       .select("id")
@@ -101,11 +101,17 @@ export const createDeveloper = createServerFn({ method: "POST" })
     if (!userId) {
       const { data: created, error: createErr } = await supabaseAdmin.auth.admin.createUser({
         email: data.email,
+        password: data.password,
         email_confirm: true,
         user_metadata: { full_name: data.fullName },
       });
       if (createErr) throw new Error(createErr.message);
       userId = created.user!.id;
+    } else {
+      const { error: updErr } = await supabaseAdmin.auth.admin.updateUserById(userId, {
+        password: data.password,
+      });
+      if (updErr) throw new Error(updErr.message);
     }
 
     await supabaseAdmin
@@ -122,9 +128,6 @@ export const createDeveloper = createServerFn({ method: "POST" })
       .from("user_roles")
       .insert({ user_id: userId, role: "developer" as any })
       .then(() => {}, () => {});
-
-    // Send password reset so they set their own
-    await supabaseAdmin.auth.admin.generateLink({ type: "recovery", email: data.email });
 
     return { ok: true, userId };
   });
