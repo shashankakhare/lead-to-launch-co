@@ -24,18 +24,8 @@ export const Route = createFileRoute("/api/public/webhooks/cashfree")({
         const cfPaymentId = payload.data?.payment?.cf_payment_id;
 
         if (orderId && paymentStatus === "SUCCESS") {
-          const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-          await supabaseAdmin
-            .from("orders")
-            .update({
-              status: "requirements_pending",
-              cashfree_payment_id: cfPaymentId ? String(cfPaymentId) : null,
-            })
-            .eq("id", orderId)
-            .eq("status", "pending_payment");
-          await supabaseAdmin
-            .from("project_requirements")
-            .upsert({ order_id: orderId }, { onConflict: "order_id" });
+          const { completePaidOrder } = await import("@/lib/payments.server");
+          await completePaidOrder(orderId, cfPaymentId ? String(cfPaymentId) : null);
         }
         return new Response("ok");
       },

@@ -35,12 +35,12 @@ export const createCheckout = createServerFn({ method: "POST" })
       .single();
     if (insertErr || !order) throw new Error(insertErr?.message ?? "Failed to create order");
 
-    const { createCashfreeOrder, cashfreeMode, isMockPayments } = await import("./cashfree.server");
+    const { createCashfreeOrder, cashfreeMode, isPaymentTestMode } = await import("./cashfree.server");
 
-    // Mock/test payment path: skip Cashfree, mark order paid immediately.
-    if (isMockPayments()) {
-      const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-      await supabaseAdmin.from("orders").update({ status: "paid" }).eq("id", order.id);
+    // Test payment path: skip Cashfree entirely so checkout cannot get stuck during testing.
+    if (isPaymentTestMode()) {
+      const { completePaidOrder } = await import("./payments.server");
+      await completePaidOrder(order.id, "test-bypass");
       return {
         orderId: order.id,
         paymentSessionId: "mock",
@@ -119,25 +119,57 @@ export const syncOrderStatus = createServerFn({ method: "POST" })
       .eq("id", data.orderId)
       .maybeSingle();
     if (!order || order.user_id !== userId) throw new Error("Order not found");
-    if (order.status !== "pending_payment") return { status: order.status };
-
-    const { fetchCashfreeOrder, isMockPayments } = await import("./cashfree.server");
-    const isPaid = isMockPayments()
-      ? true
-      : (await fetchCashfreeOrder(order.cashfree_order_id ?? order.id)).order_status === "PAID";
-    if (isPaid) {
-      const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-      await supabaseAdmin
-        .from("orders")
-        .update({ status: "requirements_pending" })
-        .eq("id", order.id)
-        .eq("status", "pending_payment");
-      await supabaseAdmin
-        .from("project_requirements")
-        .upsert({ order_id: order.id }, { onConflict: "order_id" });
-      return { status: "requirements_pending" as const };
+    if (order.status !== "pending_payment" && order.status !== "paid") {
+      const { getPaymentTarget } = await import("./payments.server");
+      const target = await getPaymentTarget(order.id);
+      return { status: order.status, projectOrderId: target.projectOrderId };
     }
-    return { status: order.status };
+
+    const { fetchCashfreeOrder, isCashfreePaidStatus, isPaymentTestMode } = await import("./cashfree.server");
+    const isPaid = order.status === "paid"
+      || isPaymentTestMode()
+      || !order.cashfree_order_id
+      || (order.cashfree_order_id
+        ? isCashfreePaidStatus((await fetchCashfreeOrder(order.cashfree_order_id)).order_status)
+        : false);
+    if (isPaid) {
+      const { completePaidOrder } = await import("./payments.server");
+      return completePaidOrder(order.id, isPaymentTestMode() ? "test-bypass" : null);
+    }
+    return { status: order.status, projectOrderId: order.id };
+  });
+
+export const syncCheckoutReturnStatus = createServerFn({ method: "POST" })
+  .inputValidator((input: { orderId: string }) =>
+    z.object({ orderId: z.string().uuid() }).parse(input),
+  )
+  .handler(async ({ data }) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: order } = await supabaseAdmin
+      .from("orders")
+      .select("id, status, cashfree_order_id")
+      .eq("id", data.orderId)
+      .maybeSingle();
+
+    if (!order) return { status: "not_found", projectOrderId: data.orderId };
+    if (order.status !== "pending_payment" && order.status !== "paid") {
+      const { getPaymentTarget } = await import("./payments.server");
+      const target = await getPaymentTarget(order.id);
+      return { status: order.status, projectOrderId: target.projectOrderId };
+    }
+
+    const { fetchCashfreeOrder, isCashfreePaidStatus, isPaymentTestMode } = await import("./cashfree.server");
+    const isPaid = order.status === "paid"
+      || isPaymentTestMode()
+      || !order.cashfree_order_id
+      || (order.cashfree_order_id
+        ? isCashfreePaidStatus((await fetchCashfreeOrder(order.cashfree_order_id)).order_status)
+        : false);
+
+    if (!isPaid) return { status: order.status, projectOrderId: order.id };
+
+    const { completePaidOrder } = await import("./payments.server");
+    return completePaidOrder(order.id, isPaymentTestMode() ? "test-bypass" : null);
   });
 
 const RequirementsSchema = z.object({

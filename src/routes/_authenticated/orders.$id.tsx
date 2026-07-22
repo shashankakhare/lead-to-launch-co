@@ -1,8 +1,8 @@
 import { useServerFn } from "@tanstack/react-start";
 import { createFileRoute } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
-import { getMyOrder, saveRequirements, rateOrder } from "@/lib/orders.functions";
+import { useEffect, useState } from "react";
+import { getMyOrder, saveRequirements, rateOrder, syncOrderStatus } from "@/lib/orders.functions";
 import { PACKAGES } from "@/lib/packages";
 import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
@@ -30,11 +30,26 @@ const STAGE_LABEL: Record<string, string> = {
 function OrderDetail() {
   const { id } = Route.useParams();
   const fn = useServerFn(getMyOrder);
+  const sync = useServerFn(syncOrderStatus);
   const qc = useQueryClient();
   const { data, isLoading } = useQuery({
     queryKey: ["order", id],
     queryFn: () => fn({ data: { orderId: id } }),
   });
+
+  useEffect(() => {
+    if (data?.order.status !== "pending_payment") return;
+    let cancelled = false;
+    sync({ data: { orderId: id } }).then((res) => {
+      if (!cancelled && res.status !== "pending_payment") {
+        qc.invalidateQueries({ queryKey: ["order", id] });
+        qc.invalidateQueries({ queryKey: ["my-orders"] });
+      }
+    }).catch(() => undefined);
+    return () => {
+      cancelled = true;
+    };
+  }, [data?.order.status, id, qc, sync]);
 
   if (isLoading || !data) return <p className="text-sm text-muted-foreground">Loading…</p>;
 

@@ -2,7 +2,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { z } from "zod";
-import { syncOrderStatus } from "@/lib/orders.functions";
+import { syncCheckoutReturnStatus } from "@/lib/orders.functions";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 
@@ -16,7 +16,7 @@ export const Route = createFileRoute("/checkout/return")({
 
 function CheckoutReturn() {
   const { order_id } = Route.useSearch();
-  const sync = useServerFn(syncOrderStatus);
+  const sync = useServerFn(syncCheckoutReturnStatus);
   const navigate = useNavigate();
   const [state, setState] = useState<"checking" | "paid" | "pending" | "error">("checking");
 
@@ -32,9 +32,9 @@ function CheckoutReturn() {
       try {
         const res = await sync({ data: { orderId: order_id } });
         if (cancelled) return;
-        if (res.status && res.status !== "pending_payment") {
+        if (res.status && res.status !== "pending_payment" && res.status !== "not_found") {
           setState("paid");
-          setTimeout(() => navigate({ to: "/orders/$id", params: { id: order_id } }), 800);
+          setTimeout(() => navigate({ to: "/orders/$id", params: { id: res.projectOrderId ?? order_id } }), 800);
           return;
         }
       } catch {

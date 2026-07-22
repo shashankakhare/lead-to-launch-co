@@ -90,12 +90,11 @@ export const purchaseAddon = createServerFn({ method: "POST" })
     });
     if (addonErr) throw new Error(addonErr.message);
 
-    const { createCashfreeOrder, cashfreeMode, isMockPayments } = await import("./cashfree.server");
+    const { createCashfreeOrder, cashfreeMode, isPaymentTestMode } = await import("./cashfree.server");
 
-    if (isMockPayments()) {
-      const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-      await supabaseAdmin.from("orders").update({ status: "paid" }).eq("id", invoiceOrder.id);
-      await supabaseAdmin.from("scope_addons").update({ status: "paid" }).eq("invoice_order_id", invoiceOrder.id);
+    if (isPaymentTestMode()) {
+      const { completePaidOrder } = await import("./payments.server");
+      await completePaidOrder(invoiceOrder.id, "test-bypass");
       return {
         invoiceOrderId: invoiceOrder.id,
         paymentSessionId: "mock",
