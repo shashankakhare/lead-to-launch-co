@@ -36,7 +36,7 @@ function DevelopersPage() {
   const { data, isLoading } = useQuery({ queryKey: ["admin-developers"], queryFn: () => list() });
 
   const [open, setOpen] = useState(false);
-  const [form, setForm] = useState({ email: "", fullName: "", phone: "", hourlyRate: "" });
+  const [form, setForm] = useState({ email: "", password: "", fullName: "", phone: "", hourlyRate: "" });
   const [busy, setBusy] = useState(false);
 
   async function handleCreate(e: React.FormEvent) {
@@ -46,14 +46,15 @@ function DevelopersPage() {
       await create({
         data: {
           email: form.email,
+          password: form.password,
           fullName: form.fullName || undefined,
           phone: form.phone || undefined,
           hourlyRate: form.hourlyRate ? Number(form.hourlyRate) : undefined,
         },
       });
-      toast.success("Developer invited. Password reset email sent.");
+      toast.success("Developer created");
       setOpen(false);
-      setForm({ email: "", fullName: "", phone: "", hourlyRate: "" });
+      setForm({ email: "", password: "", fullName: "", phone: "", hourlyRate: "" });
       qc.invalidateQueries({ queryKey: ["admin-developers"] });
     } catch (e: any) {
       toast.error(e.message ?? "Failed to create");
