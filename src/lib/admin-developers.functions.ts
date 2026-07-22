@@ -163,7 +163,7 @@ export const updateDeveloper = createServerFn({ method: "POST" })
     if (data.weeklyCapacityHours !== undefined) patch.weekly_capacity_hours = data.weeklyCapacityHours;
     if (data.isActive !== undefined) patch.is_active = data.isActive;
     if (data.skills !== undefined) patch.skills = data.skills;
-    const { error } = await supabaseAdmin.from("profiles").update(patch).eq("id", data.id);
+    const { error } = await supabaseAdmin.from("profiles").update(patch as any).eq("id", data.id);
     if (error) throw new Error(error.message);
     return { ok: true };
   });
