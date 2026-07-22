@@ -196,3 +196,113 @@ function AdminOrderDetail() {
     </div>
   );
 }
+
+type OrderRow = {
+  id: string;
+  package: string;
+  status: string;
+  amount_usd: number | string;
+  currency: string;
+  notes?: string | null;
+  assigned_to?: string | null;
+};
+
+function EditOrderCard({ order }: { order: OrderRow }) {
+  const qc = useQueryClient();
+  const navigate = useNavigate();
+  const staffFn = useServerFn(listStaff);
+  const updateFn = useServerFn(adminUpdateOrder);
+  const deleteFn = useServerFn(adminDeleteOrder);
+  const { data: staff } = useQuery({ queryKey: ["admin-staff"], queryFn: () => staffFn() });
+
+  const [pkg, setPkg] = useState(order.package);
+  const [amount, setAmount] = useState(Number(order.amount_usd));
+  const [notes, setNotes] = useState(order.notes ?? "");
+  const [assignedTo, setAssignedTo] = useState<string>(order.assigned_to ?? "unassigned");
+
+  useEffect(() => {
+    setPkg(order.package);
+    setAmount(Number(order.amount_usd));
+    setNotes(order.notes ?? "");
+    setAssignedTo(order.assigned_to ?? "unassigned");
+  }, [order.id]);
+
+  const save = useMutation({
+    mutationFn: () =>
+      updateFn({
+        data: {
+          orderId: order.id,
+          package: pkg as any,
+          amount_usd: amount,
+          notes,
+          assigned_to: assignedTo === "unassigned" ? null : assignedTo,
+        },
+      }),
+    onSuccess: () => {
+      toast.success("Order updated");
+      qc.invalidateQueries({ queryKey: ["admin-order", order.id] });
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  const del = useMutation({
+    mutationFn: () => deleteFn({ data: { orderId: order.id } }),
+    onSuccess: () => {
+      toast.success("Order deleted");
+      navigate({ to: "/admin" });
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  return (
+    <Card className="p-5 space-y-3">
+      <div className="flex items-center justify-between">
+        <h2 className="font-medium">Edit order</h2>
+        <Button
+          size="sm"
+          variant="destructive"
+          onClick={() => confirm("Delete this order permanently?") && del.mutate()}
+        >
+          Delete order
+        </Button>
+      </div>
+      <div className="grid gap-3 sm:grid-cols-2">
+        <div className="space-y-1">
+          <Label>Package</Label>
+          <Select value={pkg} onValueChange={setPkg}>
+            <SelectTrigger><SelectValue /></SelectTrigger>
+            <SelectContent>
+              {Object.keys(PACKAGES).map((k) => (
+                <SelectItem key={k} value={k}>{k}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+        <div className="space-y-1">
+          <Label>Amount (USD)</Label>
+          <Input type="number" value={amount} onChange={(e) => setAmount(Number(e.target.value))} />
+        </div>
+        <div className="space-y-1 sm:col-span-2">
+          <Label>Assigned developer</Label>
+          <Select value={assignedTo} onValueChange={setAssignedTo}>
+            <SelectTrigger><SelectValue placeholder="Unassigned" /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="unassigned">Unassigned</SelectItem>
+              {(staff ?? []).map((s) => (
+                <SelectItem key={s.id} value={s.id}>
+                  {s.full_name ?? s.email ?? s.id}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+        <div className="space-y-1 sm:col-span-2">
+          <Label>Internal notes</Label>
+          <Textarea rows={3} value={notes} onChange={(e) => setNotes(e.target.value)} />
+        </div>
+      </div>
+      <Button onClick={() => save.mutate()} disabled={save.isPending}>Save changes</Button>
+    </Card>
+  );
+}
+
