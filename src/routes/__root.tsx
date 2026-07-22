@@ -118,6 +118,13 @@ function RootShell({ children }: { children: ReactNode }) {
   return (
     <html lang="en">
       <head>
+        {/* Polyfill process.env for browser — TanStack Start's client RPC reads process.env.TSS_SERVER_FN_BASE at module init. */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html:
+              'window.process=window.process||{env:{}};window.process.env=window.process.env||{};if(!window.process.env.TSS_SERVER_FN_BASE)window.process.env.TSS_SERVER_FN_BASE="/_serverFn/";',
+          }}
+        />
         <HeadContent />
       </head>
       <body>
