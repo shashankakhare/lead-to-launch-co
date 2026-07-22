@@ -1,46 +1,78 @@
-## Super Admin Edit Features
 
-Add editing capabilities to the admin panel for four areas.
+# Advanced Admin Dashboard & Developer Management
 
-### 1. Landing page content
-- New `site_content` table (key/value JSON) storing hero, process, pricing blurbs, FAQ, footer text.
-- Public loader on `/` reads it (falls back to current hardcoded defaults if empty).
-- Admin route `/admin/content` with grouped forms (Hero, Process, Pricing copy, FAQ list editor, Footer).
+Replace the basic tabbed admin with a proper operations console: KPI overview, multiple reports, and full developer CRUD with workload and performance.
 
-### 2. Packages & pricing
-- New `packages` table (slug, name, price_usd, pages, features[], cta, sort, active) + `addons` table (key, name, price_usd, description, active).
-- Seed from current `src/lib/packages.ts` defaults.
-- Landing + checkout read from DB; keep `packages.ts` as type/fallback.
-- Admin route `/admin/packages` — list + inline edit prices, features, toggle active, reorder.
+## 1. Dashboard Overview (`/admin`)
 
-### 3. Orders
-- Admin route `/admin/orders/$id` already exists (status/timeline). Extend with an "Edit" panel:
-  - Editable: amount_usd, package_tier, status (dropdown of all statuses), notes, assigned_to (if developer roles added later — for now just a text field), delete order.
-- Server fn `adminUpdateOrder` (RBAC guarded) using `supabaseAdmin`.
+Top-line KPIs and charts, all live from the database.
 
-### 4. Users & roles
-- Admin route `/admin/users`:
-  - List all profiles + their roles.
-  - Edit full_name, email (display), promote/demote: toggle `admin`, `client`, `developer` role.
-  - Delete user (auth admin API).
-- Server fns: `adminListUsers`, `adminSetUserRoles`, `adminDeleteUser` — all guarded by `has_role(admin)`.
+- **KPI tiles**: Total revenue (paid orders), orders this month, active projects, pending requirements, avg rating, avg delivery days.
+- **Charts** (recharts):
+  - Revenue trend — last 12 weeks (line)
+  - Orders by status (donut)
+  - Package mix — 1 / 5 / 10 page (bar)
+  - New signups per week (bar)
+- **Recent activity**: latest 10 orders + latest 10 project updates.
+- **Alerts**: overdue projects (past ETA), unassigned paid orders, unread admin messages.
 
-### Shared
-- All admin mutations go through `createServerFn` with `requireSupabaseAuth` + admin check before importing `supabaseAdmin`.
-- Add nav entries in admin sidebar: Content, Packages, Orders, Users.
-- Zod validation on every input.
+## 2. Reports (`/admin/reports`)
 
-### Technical notes
-- Migrations: create `site_content`, `packages`, `addons` tables with GRANTs (anon SELECT for site_content + packages + addons since landing is public; admin-only writes via RLS using `has_role`).
-- New app_role value `developer` added to enum for future use.
-- Files:
-  - `src/lib/admin-content.functions.ts`
-  - `src/lib/admin-packages.functions.ts`
-  - `src/lib/admin-users.functions.ts`
-  - extend `src/lib/admin.functions.ts` for order edit
-  - `src/routes/_authenticated/admin.content.tsx`
-  - `src/routes/_authenticated/admin.packages.tsx`
-  - `src/routes/_authenticated/admin.users.tsx`
-  - update `src/routes/index.tsx` and checkout to read DB packages with fallback.
+Sub-tabs, each with filters (date range, package, developer, status) and CSV export:
 
-Scope is large — confirm and I'll build it in this order: DB migrations → server fns → admin UIs → wire landing/checkout to DB.
+1. **Revenue report** — by day/week/month, by package, by currency.
+2. **Orders report** — funnel: created → paid → in_progress → delivered; drop-off %.
+3. **Developer performance** — per developer: assigned, delivered, avg delivery days, avg rating, hours logged, on-time %.
+4. **Client satisfaction** — rating distribution, latest comments, NPS-style score.
+5. **Time tracking** — hours per developer per week, per project breakdown.
+
+## 3. Developer Management (`/admin/developers`)
+
+Full CRUD with role `developer` in `user_roles`.
+
+- **List**: name, email, active/inactive, current workload (open projects), hours this week, avg rating, joined date.
+- **Create**: invite by email (creates auth user via admin API, sets profile fields, assigns `developer` role, sends reset-password email so they set their own password).
+- **Edit**: full name, phone, avatar, skills, hourly capacity, active toggle.
+- **Delete**: soft-disable (revoke role + mark inactive) with confirmation. Hard delete only if no orders assigned.
+- **Detail page** (`/admin/developers/$id`):
+  - Profile card
+  - Assigned projects (with status, ETA, rating)
+  - Time log (all entries, editable by admin)
+  - Performance summary (mini charts)
+
+## 4. Auto-assignment engine
+
+- New table `dev_workload_view` (SQL view): open orders per active developer.
+- Server function `autoAssignOrder(orderId)` picks the developer with lowest open count; ties broken by lowest hours-this-week.
+- Trigger option on order paid: admin toggles auto-assign in settings; otherwise assign manually from order detail.
+
+## 5. Time tracking
+
+- Existing `time_entries` table (create if missing): developer_id, order_id, started_at, ended_at, minutes, note.
+- Developer-side timer stays out of scope of this ticket (already planned); admin can view/edit/delete entries here.
+
+## 6. Schema additions
+
+Migration to add (only what doesn't exist):
+- `profiles`: `phone`, `skills text[]`, `weekly_capacity_hours int`, `is_active bool default true`, `hourly_rate numeric`.
+- `time_entries` table (if not present) with RLS: developer read/write own; admin all.
+- View `admin_developer_stats` for performance queries.
+
+## 7. Technical details
+
+- All queries via `createServerFn` with `requireSupabaseAuth` + admin role check.
+- Charts: `recharts` (already installed).
+- Filters synced to URL search params via `validateSearch`.
+- CSV export handled client-side from fetched rows.
+- Reuse existing `admin.tsx` layout; convert tabs into a proper sidebar sub-nav (Overview, Reports, Orders, Developers, Users, Packages, Content).
+
+## Deliverable order
+
+1. Migration (schema + view)
+2. Server functions (stats, reports, developer CRUD, auto-assign)
+3. Admin layout refactor with sub-nav
+4. Overview page
+5. Reports page (all 5 sub-reports)
+6. Developers list + detail + create/edit/delete
+
+Approve to proceed, or tell me to drop/adjust sections.

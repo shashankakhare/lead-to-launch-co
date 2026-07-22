@@ -29,13 +29,17 @@ import { Route as AuthenticatedOrdersIdRouteImport } from './routes/_authenticat
 import { Route as AuthenticatedMessagesIdRouteImport } from './routes/_authenticated/messages.$id'
 import { Route as AuthenticatedCheckoutPackageRouteImport } from './routes/_authenticated/checkout.$package'
 import { Route as AuthenticatedAdminUsersRouteImport } from './routes/_authenticated/admin.users'
+import { Route as AuthenticatedAdminReportsRouteImport } from './routes/_authenticated/admin.reports'
 import { Route as AuthenticatedAdminPackagesRouteImport } from './routes/_authenticated/admin.packages'
+import { Route as AuthenticatedAdminOrdersRouteImport } from './routes/_authenticated/admin.orders'
+import { Route as AuthenticatedAdminDevelopersRouteImport } from './routes/_authenticated/admin.developers'
 import { Route as AuthenticatedAdminContentRouteImport } from './routes/_authenticated/admin.content'
 import { Route as LovableEmailAuthWebhookRouteImport } from './routes/lovable/email/auth/webhook'
 import { Route as LovableEmailAuthPreviewRouteImport } from './routes/lovable/email/auth/preview'
 import { Route as ApiPublicWebhooksCashfreeRouteImport } from './routes/api/public/webhooks/cashfree'
 import { Route as AuthenticatedBillingScopeIdRouteImport } from './routes/_authenticated/billing.scope.$id'
 import { Route as AuthenticatedAdminOrdersIdRouteImport } from './routes/_authenticated/admin.orders.$id'
+import { Route as AuthenticatedAdminDevelopersIdRouteImport } from './routes/_authenticated/admin.developers.$id'
 
 const ResetPasswordRoute = ResetPasswordRouteImport.update({
   id: '/reset-password',
@@ -138,10 +142,28 @@ const AuthenticatedAdminUsersRoute = AuthenticatedAdminUsersRouteImport.update({
   path: '/users',
   getParentRoute: () => AuthenticatedAdminRoute,
 } as any)
+const AuthenticatedAdminReportsRoute =
+  AuthenticatedAdminReportsRouteImport.update({
+    id: '/reports',
+    path: '/reports',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
 const AuthenticatedAdminPackagesRoute =
   AuthenticatedAdminPackagesRouteImport.update({
     id: '/packages',
     path: '/packages',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminOrdersRoute =
+  AuthenticatedAdminOrdersRouteImport.update({
+    id: '/orders',
+    path: '/orders',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminDevelopersRoute =
+  AuthenticatedAdminDevelopersRouteImport.update({
+    id: '/developers',
+    path: '/developers',
     getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
 const AuthenticatedAdminContentRoute =
@@ -174,9 +196,15 @@ const AuthenticatedBillingScopeIdRoute =
   } as any)
 const AuthenticatedAdminOrdersIdRoute =
   AuthenticatedAdminOrdersIdRouteImport.update({
-    id: '/orders/$id',
-    path: '/orders/$id',
-    getParentRoute: () => AuthenticatedAdminRoute,
+    id: '/$id',
+    path: '/$id',
+    getParentRoute: () => AuthenticatedAdminOrdersRoute,
+  } as any)
+const AuthenticatedAdminDevelopersIdRoute =
+  AuthenticatedAdminDevelopersIdRouteImport.update({
+    id: '/$id',
+    path: '/$id',
+    getParentRoute: () => AuthenticatedAdminDevelopersRoute,
   } as any)
 
 export interface FileRoutesByFullPath {
@@ -194,13 +222,17 @@ export interface FileRoutesByFullPath {
   '/settings': typeof AuthenticatedSettingsRoute
   '/checkout/return': typeof CheckoutReturnRoute
   '/admin/content': typeof AuthenticatedAdminContentRoute
+  '/admin/developers': typeof AuthenticatedAdminDevelopersRouteWithChildren
+  '/admin/orders': typeof AuthenticatedAdminOrdersRouteWithChildren
   '/admin/packages': typeof AuthenticatedAdminPackagesRoute
+  '/admin/reports': typeof AuthenticatedAdminReportsRoute
   '/admin/users': typeof AuthenticatedAdminUsersRoute
   '/checkout/$package': typeof AuthenticatedCheckoutPackageRoute
   '/messages/$id': typeof AuthenticatedMessagesIdRoute
   '/orders/$id': typeof AuthenticatedOrdersIdRoute
   '/admin/': typeof AuthenticatedAdminIndexRoute
   '/messages/': typeof AuthenticatedMessagesIndexRoute
+  '/admin/developers/$id': typeof AuthenticatedAdminDevelopersIdRoute
   '/admin/orders/$id': typeof AuthenticatedAdminOrdersIdRoute
   '/billing/scope/$id': typeof AuthenticatedBillingScopeIdRoute
   '/api/public/webhooks/cashfree': typeof ApiPublicWebhooksCashfreeRoute
@@ -220,13 +252,17 @@ export interface FileRoutesByTo {
   '/settings': typeof AuthenticatedSettingsRoute
   '/checkout/return': typeof CheckoutReturnRoute
   '/admin/content': typeof AuthenticatedAdminContentRoute
+  '/admin/developers': typeof AuthenticatedAdminDevelopersRouteWithChildren
+  '/admin/orders': typeof AuthenticatedAdminOrdersRouteWithChildren
   '/admin/packages': typeof AuthenticatedAdminPackagesRoute
+  '/admin/reports': typeof AuthenticatedAdminReportsRoute
   '/admin/users': typeof AuthenticatedAdminUsersRoute
   '/checkout/$package': typeof AuthenticatedCheckoutPackageRoute
   '/messages/$id': typeof AuthenticatedMessagesIdRoute
   '/orders/$id': typeof AuthenticatedOrdersIdRoute
   '/admin': typeof AuthenticatedAdminIndexRoute
   '/messages': typeof AuthenticatedMessagesIndexRoute
+  '/admin/developers/$id': typeof AuthenticatedAdminDevelopersIdRoute
   '/admin/orders/$id': typeof AuthenticatedAdminOrdersIdRoute
   '/billing/scope/$id': typeof AuthenticatedBillingScopeIdRoute
   '/api/public/webhooks/cashfree': typeof ApiPublicWebhooksCashfreeRoute
@@ -250,13 +286,17 @@ export interface FileRoutesById {
   '/_authenticated/settings': typeof AuthenticatedSettingsRoute
   '/checkout/return': typeof CheckoutReturnRoute
   '/_authenticated/admin/content': typeof AuthenticatedAdminContentRoute
+  '/_authenticated/admin/developers': typeof AuthenticatedAdminDevelopersRouteWithChildren
+  '/_authenticated/admin/orders': typeof AuthenticatedAdminOrdersRouteWithChildren
   '/_authenticated/admin/packages': typeof AuthenticatedAdminPackagesRoute
+  '/_authenticated/admin/reports': typeof AuthenticatedAdminReportsRoute
   '/_authenticated/admin/users': typeof AuthenticatedAdminUsersRoute
   '/_authenticated/checkout/$package': typeof AuthenticatedCheckoutPackageRoute
   '/_authenticated/messages/$id': typeof AuthenticatedMessagesIdRoute
   '/_authenticated/orders/$id': typeof AuthenticatedOrdersIdRoute
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
   '/_authenticated/messages/': typeof AuthenticatedMessagesIndexRoute
+  '/_authenticated/admin/developers/$id': typeof AuthenticatedAdminDevelopersIdRoute
   '/_authenticated/admin/orders/$id': typeof AuthenticatedAdminOrdersIdRoute
   '/_authenticated/billing/scope/$id': typeof AuthenticatedBillingScopeIdRoute
   '/api/public/webhooks/cashfree': typeof ApiPublicWebhooksCashfreeRoute
@@ -280,13 +320,17 @@ export interface FileRouteTypes {
     | '/settings'
     | '/checkout/return'
     | '/admin/content'
+    | '/admin/developers'
+    | '/admin/orders'
     | '/admin/packages'
+    | '/admin/reports'
     | '/admin/users'
     | '/checkout/$package'
     | '/messages/$id'
     | '/orders/$id'
     | '/admin/'
     | '/messages/'
+    | '/admin/developers/$id'
     | '/admin/orders/$id'
     | '/billing/scope/$id'
     | '/api/public/webhooks/cashfree'
@@ -306,13 +350,17 @@ export interface FileRouteTypes {
     | '/settings'
     | '/checkout/return'
     | '/admin/content'
+    | '/admin/developers'
+    | '/admin/orders'
     | '/admin/packages'
+    | '/admin/reports'
     | '/admin/users'
     | '/checkout/$package'
     | '/messages/$id'
     | '/orders/$id'
     | '/admin'
     | '/messages'
+    | '/admin/developers/$id'
     | '/admin/orders/$id'
     | '/billing/scope/$id'
     | '/api/public/webhooks/cashfree'
@@ -335,13 +383,17 @@ export interface FileRouteTypes {
     | '/_authenticated/settings'
     | '/checkout/return'
     | '/_authenticated/admin/content'
+    | '/_authenticated/admin/developers'
+    | '/_authenticated/admin/orders'
     | '/_authenticated/admin/packages'
+    | '/_authenticated/admin/reports'
     | '/_authenticated/admin/users'
     | '/_authenticated/checkout/$package'
     | '/_authenticated/messages/$id'
     | '/_authenticated/orders/$id'
     | '/_authenticated/admin/'
     | '/_authenticated/messages/'
+    | '/_authenticated/admin/developers/$id'
     | '/_authenticated/admin/orders/$id'
     | '/_authenticated/billing/scope/$id'
     | '/api/public/webhooks/cashfree'
@@ -503,11 +555,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminUsersRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
+    '/_authenticated/admin/reports': {
+      id: '/_authenticated/admin/reports'
+      path: '/reports'
+      fullPath: '/admin/reports'
+      preLoaderRoute: typeof AuthenticatedAdminReportsRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
     '/_authenticated/admin/packages': {
       id: '/_authenticated/admin/packages'
       path: '/packages'
       fullPath: '/admin/packages'
       preLoaderRoute: typeof AuthenticatedAdminPackagesRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/orders': {
+      id: '/_authenticated/admin/orders'
+      path: '/orders'
+      fullPath: '/admin/orders'
+      preLoaderRoute: typeof AuthenticatedAdminOrdersRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/developers': {
+      id: '/_authenticated/admin/developers'
+      path: '/developers'
+      fullPath: '/admin/developers'
+      preLoaderRoute: typeof AuthenticatedAdminDevelopersRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
     '/_authenticated/admin/content': {
@@ -547,28 +620,68 @@ declare module '@tanstack/react-router' {
     }
     '/_authenticated/admin/orders/$id': {
       id: '/_authenticated/admin/orders/$id'
-      path: '/orders/$id'
+      path: '/$id'
       fullPath: '/admin/orders/$id'
       preLoaderRoute: typeof AuthenticatedAdminOrdersIdRouteImport
-      parentRoute: typeof AuthenticatedAdminRoute
+      parentRoute: typeof AuthenticatedAdminOrdersRoute
+    }
+    '/_authenticated/admin/developers/$id': {
+      id: '/_authenticated/admin/developers/$id'
+      path: '/$id'
+      fullPath: '/admin/developers/$id'
+      preLoaderRoute: typeof AuthenticatedAdminDevelopersIdRouteImport
+      parentRoute: typeof AuthenticatedAdminDevelopersRoute
     }
   }
 }
 
+interface AuthenticatedAdminDevelopersRouteChildren {
+  AuthenticatedAdminDevelopersIdRoute: typeof AuthenticatedAdminDevelopersIdRoute
+}
+
+const AuthenticatedAdminDevelopersRouteChildren: AuthenticatedAdminDevelopersRouteChildren =
+  {
+    AuthenticatedAdminDevelopersIdRoute: AuthenticatedAdminDevelopersIdRoute,
+  }
+
+const AuthenticatedAdminDevelopersRouteWithChildren =
+  AuthenticatedAdminDevelopersRoute._addFileChildren(
+    AuthenticatedAdminDevelopersRouteChildren,
+  )
+
+interface AuthenticatedAdminOrdersRouteChildren {
+  AuthenticatedAdminOrdersIdRoute: typeof AuthenticatedAdminOrdersIdRoute
+}
+
+const AuthenticatedAdminOrdersRouteChildren: AuthenticatedAdminOrdersRouteChildren =
+  {
+    AuthenticatedAdminOrdersIdRoute: AuthenticatedAdminOrdersIdRoute,
+  }
+
+const AuthenticatedAdminOrdersRouteWithChildren =
+  AuthenticatedAdminOrdersRoute._addFileChildren(
+    AuthenticatedAdminOrdersRouteChildren,
+  )
+
 interface AuthenticatedAdminRouteChildren {
   AuthenticatedAdminContentRoute: typeof AuthenticatedAdminContentRoute
+  AuthenticatedAdminDevelopersRoute: typeof AuthenticatedAdminDevelopersRouteWithChildren
+  AuthenticatedAdminOrdersRoute: typeof AuthenticatedAdminOrdersRouteWithChildren
   AuthenticatedAdminPackagesRoute: typeof AuthenticatedAdminPackagesRoute
+  AuthenticatedAdminReportsRoute: typeof AuthenticatedAdminReportsRoute
   AuthenticatedAdminUsersRoute: typeof AuthenticatedAdminUsersRoute
   AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
-  AuthenticatedAdminOrdersIdRoute: typeof AuthenticatedAdminOrdersIdRoute
 }
 
 const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
   AuthenticatedAdminContentRoute: AuthenticatedAdminContentRoute,
+  AuthenticatedAdminDevelopersRoute:
+    AuthenticatedAdminDevelopersRouteWithChildren,
+  AuthenticatedAdminOrdersRoute: AuthenticatedAdminOrdersRouteWithChildren,
   AuthenticatedAdminPackagesRoute: AuthenticatedAdminPackagesRoute,
+  AuthenticatedAdminReportsRoute: AuthenticatedAdminReportsRoute,
   AuthenticatedAdminUsersRoute: AuthenticatedAdminUsersRoute,
   AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
-  AuthenticatedAdminOrdersIdRoute: AuthenticatedAdminOrdersIdRoute,
 }
 
 const AuthenticatedAdminRouteWithChildren =

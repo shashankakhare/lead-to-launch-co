@@ -223,9 +223,13 @@ export type Database = {
           created_at: string
           email: string | null
           full_name: string | null
+          hourly_rate: number | null
           id: string
+          is_active: boolean | null
           phone: string | null
+          skills: string[] | null
           updated_at: string
+          weekly_capacity_hours: number | null
         }
         Insert: {
           avatar_url?: string | null
@@ -233,9 +237,13 @@ export type Database = {
           created_at?: string
           email?: string | null
           full_name?: string | null
+          hourly_rate?: number | null
           id: string
+          is_active?: boolean | null
           phone?: string | null
+          skills?: string[] | null
           updated_at?: string
+          weekly_capacity_hours?: number | null
         }
         Update: {
           avatar_url?: string | null
@@ -243,9 +251,13 @@ export type Database = {
           created_at?: string
           email?: string | null
           full_name?: string | null
+          hourly_rate?: number | null
           id?: string
+          is_active?: boolean | null
           phone?: string | null
+          skills?: string[] | null
           updated_at?: string
+          weekly_capacity_hours?: number | null
         }
         Relationships: []
       }
@@ -449,6 +461,50 @@ export type Database = {
           value?: Json
         }
         Relationships: []
+      }
+      time_entries: {
+        Row: {
+          created_at: string
+          developer_id: string
+          ended_at: string | null
+          id: string
+          minutes: number | null
+          note: string | null
+          order_id: string | null
+          started_at: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          developer_id: string
+          ended_at?: string | null
+          id?: string
+          minutes?: number | null
+          note?: string | null
+          order_id?: string | null
+          started_at: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          developer_id?: string
+          ended_at?: string | null
+          id?: string
+          minutes?: number | null
+          note?: string | null
+          order_id?: string | null
+          started_at?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "time_entries_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_roles: {
         Row: {
