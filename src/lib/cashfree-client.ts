@@ -27,3 +27,16 @@ export async function loadCashfree(mode: "sandbox" | "production"): Promise<Cash
   if (!window.Cashfree) throw new Error("Cashfree SDK unavailable");
   return window.Cashfree({ mode });
 }
+
+export async function openCashfreeCheckout(opts: {
+  paymentSessionId: string;
+  mode: "sandbox" | "production";
+  redirectTarget?: "_self" | "_blank" | "_modal";
+}) {
+  const cf = await loadCashfree(opts.mode);
+  return cf.checkout({
+    paymentSessionId: opts.paymentSessionId,
+    redirectTarget: opts.redirectTarget ?? "_modal",
+  });
+}
+
