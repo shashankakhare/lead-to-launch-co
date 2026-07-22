@@ -170,7 +170,7 @@ function ReportsPage() {
               {data.recentRatings.map((r: any) => (
                 <div key={r.id ?? r.created_at} className="text-sm p-2 rounded bg-white/5">
                   <div className="text-amber-400">{"★".repeat(r.stars)}{"☆".repeat(5 - r.stars)}</div>
-                  {r.comment && <p className="text-muted-foreground">{r.comment}</p>}
+                  {r.review && <p className="text-muted-foreground">{r.review}</p>}
                 </div>
               ))}
               {data.recentRatings.length === 0 && <p className="text-sm text-muted-foreground">No ratings yet.</p>}

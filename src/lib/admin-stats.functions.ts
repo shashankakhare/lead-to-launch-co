@@ -21,7 +21,7 @@ export const getAdminOverview = createServerFn({ method: "GET" })
           .from("orders")
           .select("id, package, amount_usd, status, created_at, user_id, assigned_to")
           .order("created_at", { ascending: false }),
-        supabaseAdmin.from("ratings").select("stars, comment, created_at"),
+        supabaseAdmin.from("ratings").select("stars, review, created_at"),
         supabaseAdmin.from("profiles").select("id, email, full_name, created_at"),
         supabaseAdmin.from("project_requirements").select("order_id, submitted_at"),
         supabaseAdmin
