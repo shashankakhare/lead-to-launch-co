@@ -8,7 +8,7 @@ async function assertAdmin(supabase: any, userId: string) {
   if (!data) throw new Error("Forbidden: admin only");
 }
 
-const OPEN = ["paid", "requirements_pending", "in_progress", "review"];
+const OPEN = ["paid", "requirements_pending", "in_progress", "review"] as const;
 
 export const listDevelopers = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
@@ -218,7 +218,7 @@ export const autoAssignOrder = createServerFn({ method: "POST" })
       .from("orders")
       .select("assigned_to")
       .in("assigned_to", active)
-      .in("status", OPEN);
+      .in("status", OPEN as any);
     const counts = new Map(active.map((id) => [id, 0]));
     (openOrders ?? []).forEach((o) => {
       if (o.assigned_to) counts.set(o.assigned_to, (counts.get(o.assigned_to) || 0) + 1);
