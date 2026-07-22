@@ -35,11 +35,23 @@ export const createCheckout = createServerFn({ method: "POST" })
       .single();
     if (insertErr || !order) throw new Error(insertErr?.message ?? "Failed to create order");
 
+    const { createCashfreeOrder, cashfreeMode, isMockPayments } = await import("./cashfree.server");
+
+    // Mock/test payment path: skip Cashfree, mark order paid immediately.
+    if (isMockPayments()) {
+      const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+      await supabaseAdmin.from("orders").update({ status: "paid" }).eq("id", order.id);
+      return {
+        orderId: order.id,
+        paymentSessionId: "mock",
+        mode: "mock" as const,
+      };
+    }
+
     const host = getRequestHost();
     const proto = host.startsWith("localhost") ? "http" : "https";
     const origin = `${proto}://${host}`;
 
-    const { createCashfreeOrder, cashfreeMode } = await import("./cashfree.server");
     const cf = await createCashfreeOrder({
       orderId: order.id,
       amount: pkg.priceUsd,
