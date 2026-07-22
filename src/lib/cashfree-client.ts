@@ -11,8 +11,11 @@ declare global {
 
 let loadingPromise: Promise<void> | null = null;
 
-export async function loadCashfree(mode: "sandbox" | "production"): Promise<CashfreeInstance> {
+export type CheckoutMode = "sandbox" | "production" | "mock";
+
+export async function loadCashfree(mode: CheckoutMode): Promise<CashfreeInstance> {
   if (typeof window === "undefined") throw new Error("Cashfree SDK requires a browser");
+  if (mode === "mock") throw new Error("Cashfree SDK is not used in mock mode");
   if (!window.Cashfree) {
     loadingPromise ??= new Promise<void>((resolve, reject) => {
       const s = document.createElement("script");
@@ -30,9 +33,10 @@ export async function loadCashfree(mode: "sandbox" | "production"): Promise<Cash
 
 export async function openCashfreeCheckout(opts: {
   paymentSessionId: string;
-  mode: "sandbox" | "production";
+  mode: CheckoutMode;
   redirectTarget?: "_self" | "_blank" | "_modal";
 }) {
+  if (opts.mode === "mock") return; // handled by caller (order already marked paid)
   const cf = await loadCashfree(opts.mode);
   return cf.checkout({
     paymentSessionId: opts.paymentSessionId,
