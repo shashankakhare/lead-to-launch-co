@@ -36,6 +36,11 @@ function Scope() {
     },
     onSuccess: async (res) => {
       try {
+        if (res.mode === "mock") {
+          toast.success("Test payment complete — add-on activated");
+          navigate({ to: "/orders/$id", params: { id } });
+          return;
+        }
         await openCashfreeCheckout({ paymentSessionId: res.paymentSessionId, mode: res.mode });
       } catch (e) {
         toast.error("Checkout failed to open");
