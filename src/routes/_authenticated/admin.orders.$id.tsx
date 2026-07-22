@@ -82,9 +82,12 @@ function AdminOrderDetail() {
         <div className="flex items-center gap-3 text-sm mt-1">
           <Badge variant="secondary">{data.order.status}</Badge>
           <span className="text-muted-foreground">${Number(data.order.amount_usd).toFixed(0)} {data.order.currency}</span>
+        </div>
       </div>
 
       <EditOrderCard order={data.order} />
+
+
 
 
       <Card className="p-5 space-y-2 text-sm">
