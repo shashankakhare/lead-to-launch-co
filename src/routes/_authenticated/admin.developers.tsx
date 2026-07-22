@@ -87,12 +87,16 @@ function DevelopersPage() {
           </DialogTrigger>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>Invite developer</DialogTitle>
+              <DialogTitle>Add developer</DialogTitle>
             </DialogHeader>
             <form onSubmit={handleCreate} className="space-y-3">
               <div className="space-y-1">
                 <Label htmlFor="dev-email">Email *</Label>
                 <Input id="dev-email" type="email" required value={form.email} onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))} />
+              </div>
+              <div className="space-y-1">
+                <Label htmlFor="dev-password">Password *</Label>
+                <Input id="dev-password" type="text" required minLength={8} value={form.password} onChange={(e) => setForm((f) => ({ ...f, password: e.target.value }))} placeholder="Min 8 characters" />
               </div>
               <div className="space-y-1">
                 <Label htmlFor="dev-name">Full name</Label>
@@ -109,7 +113,7 @@ function DevelopersPage() {
                 </div>
               </div>
               <DialogFooter>
-                <Button type="submit" disabled={busy}>{busy ? "Sending…" : "Invite"}</Button>
+                <Button type="submit" disabled={busy}>{busy ? "Creating…" : "Create"}</Button>
               </DialogFooter>
             </form>
           </DialogContent>
