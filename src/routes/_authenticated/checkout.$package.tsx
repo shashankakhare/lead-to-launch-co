@@ -27,6 +27,12 @@ function Checkout() {
     (async () => {
       try {
         const res = await fn({ data: { packageSlug: slug as PackageSlug } });
+        if (cancelled) return;
+        if (res.mode === "mock") {
+          // Test/mock payment path: order is already marked paid server-side.
+          navigate({ to: "/orders/$id", params: { id: res.orderId } });
+          return;
+        }
         const cashfree = await loadCashfree(res.mode);
         if (cancelled) return;
         await cashfree.checkout({
