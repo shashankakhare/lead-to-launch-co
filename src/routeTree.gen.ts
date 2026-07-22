@@ -13,12 +13,21 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as CheckoutReturnRouteImport } from './routes/checkout.return'
+import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticated/settings'
+import { Route as AuthenticatedReviewsRouteImport } from './routes/_authenticated/reviews'
+import { Route as AuthenticatedProjectsRouteImport } from './routes/_authenticated/projects'
+import { Route as AuthenticatedMessagesRouteImport } from './routes/_authenticated/messages'
+import { Route as AuthenticatedFilesRouteImport } from './routes/_authenticated/files'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
+import { Route as AuthenticatedBillingRouteImport } from './routes/_authenticated/billing'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
+import { Route as AuthenticatedMessagesIndexRouteImport } from './routes/_authenticated/messages.index'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin.index'
 import { Route as AuthenticatedOrdersIdRouteImport } from './routes/_authenticated/orders.$id'
+import { Route as AuthenticatedMessagesIdRouteImport } from './routes/_authenticated/messages.$id'
 import { Route as AuthenticatedCheckoutPackageRouteImport } from './routes/_authenticated/checkout.$package'
 import { Route as ApiPublicWebhooksCashfreeRouteImport } from './routes/api/public/webhooks/cashfree'
+import { Route as AuthenticatedBillingScopeIdRouteImport } from './routes/_authenticated/billing.scope.$id'
 import { Route as AuthenticatedAdminOrdersIdRouteImport } from './routes/_authenticated/admin.orders.$id'
 
 const AuthRoute = AuthRouteImport.update({
@@ -40,9 +49,39 @@ const CheckoutReturnRoute = CheckoutReturnRouteImport.update({
   path: '/checkout/return',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedSettingsRoute = AuthenticatedSettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedReviewsRoute = AuthenticatedReviewsRouteImport.update({
+  id: '/reviews',
+  path: '/reviews',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedProjectsRoute = AuthenticatedProjectsRouteImport.update({
+  id: '/projects',
+  path: '/projects',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedMessagesRoute = AuthenticatedMessagesRouteImport.update({
+  id: '/messages',
+  path: '/messages',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedFilesRoute = AuthenticatedFilesRouteImport.update({
+  id: '/files',
+  path: '/files',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedBillingRoute = AuthenticatedBillingRouteImport.update({
+  id: '/billing',
+  path: '/billing',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
@@ -50,6 +89,12 @@ const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
   path: '/admin',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedMessagesIndexRoute =
+  AuthenticatedMessagesIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => AuthenticatedMessagesRoute,
+  } as any)
 const AuthenticatedAdminIndexRoute = AuthenticatedAdminIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -59,6 +104,11 @@ const AuthenticatedOrdersIdRoute = AuthenticatedOrdersIdRouteImport.update({
   id: '/orders/$id',
   path: '/orders/$id',
   getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedMessagesIdRoute = AuthenticatedMessagesIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => AuthenticatedMessagesRoute,
 } as any)
 const AuthenticatedCheckoutPackageRoute =
   AuthenticatedCheckoutPackageRouteImport.update({
@@ -72,6 +122,12 @@ const ApiPublicWebhooksCashfreeRoute =
     path: '/api/public/webhooks/cashfree',
     getParentRoute: () => rootRouteImport,
   } as any)
+const AuthenticatedBillingScopeIdRoute =
+  AuthenticatedBillingScopeIdRouteImport.update({
+    id: '/scope/$id',
+    path: '/scope/$id',
+    getParentRoute: () => AuthenticatedBillingRoute,
+  } as any)
 const AuthenticatedAdminOrdersIdRoute =
   AuthenticatedAdminOrdersIdRouteImport.update({
     id: '/orders/$id',
@@ -83,23 +139,40 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/admin': typeof AuthenticatedAdminRouteWithChildren
+  '/billing': typeof AuthenticatedBillingRouteWithChildren
   '/dashboard': typeof AuthenticatedDashboardRoute
+  '/files': typeof AuthenticatedFilesRoute
+  '/messages': typeof AuthenticatedMessagesRouteWithChildren
+  '/projects': typeof AuthenticatedProjectsRoute
+  '/reviews': typeof AuthenticatedReviewsRoute
+  '/settings': typeof AuthenticatedSettingsRoute
   '/checkout/return': typeof CheckoutReturnRoute
   '/checkout/$package': typeof AuthenticatedCheckoutPackageRoute
+  '/messages/$id': typeof AuthenticatedMessagesIdRoute
   '/orders/$id': typeof AuthenticatedOrdersIdRoute
   '/admin/': typeof AuthenticatedAdminIndexRoute
+  '/messages/': typeof AuthenticatedMessagesIndexRoute
   '/admin/orders/$id': typeof AuthenticatedAdminOrdersIdRoute
+  '/billing/scope/$id': typeof AuthenticatedBillingScopeIdRoute
   '/api/public/webhooks/cashfree': typeof ApiPublicWebhooksCashfreeRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/billing': typeof AuthenticatedBillingRouteWithChildren
   '/dashboard': typeof AuthenticatedDashboardRoute
+  '/files': typeof AuthenticatedFilesRoute
+  '/projects': typeof AuthenticatedProjectsRoute
+  '/reviews': typeof AuthenticatedReviewsRoute
+  '/settings': typeof AuthenticatedSettingsRoute
   '/checkout/return': typeof CheckoutReturnRoute
   '/checkout/$package': typeof AuthenticatedCheckoutPackageRoute
+  '/messages/$id': typeof AuthenticatedMessagesIdRoute
   '/orders/$id': typeof AuthenticatedOrdersIdRoute
   '/admin': typeof AuthenticatedAdminIndexRoute
+  '/messages': typeof AuthenticatedMessagesIndexRoute
   '/admin/orders/$id': typeof AuthenticatedAdminOrdersIdRoute
+  '/billing/scope/$id': typeof AuthenticatedBillingScopeIdRoute
   '/api/public/webhooks/cashfree': typeof ApiPublicWebhooksCashfreeRoute
 }
 export interface FileRoutesById {
@@ -108,12 +181,21 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRouteWithChildren
+  '/_authenticated/billing': typeof AuthenticatedBillingRouteWithChildren
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
+  '/_authenticated/files': typeof AuthenticatedFilesRoute
+  '/_authenticated/messages': typeof AuthenticatedMessagesRouteWithChildren
+  '/_authenticated/projects': typeof AuthenticatedProjectsRoute
+  '/_authenticated/reviews': typeof AuthenticatedReviewsRoute
+  '/_authenticated/settings': typeof AuthenticatedSettingsRoute
   '/checkout/return': typeof CheckoutReturnRoute
   '/_authenticated/checkout/$package': typeof AuthenticatedCheckoutPackageRoute
+  '/_authenticated/messages/$id': typeof AuthenticatedMessagesIdRoute
   '/_authenticated/orders/$id': typeof AuthenticatedOrdersIdRoute
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
+  '/_authenticated/messages/': typeof AuthenticatedMessagesIndexRoute
   '/_authenticated/admin/orders/$id': typeof AuthenticatedAdminOrdersIdRoute
+  '/_authenticated/billing/scope/$id': typeof AuthenticatedBillingScopeIdRoute
   '/api/public/webhooks/cashfree': typeof ApiPublicWebhooksCashfreeRoute
 }
 export interface FileRouteTypes {
@@ -122,23 +204,40 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/admin'
+    | '/billing'
     | '/dashboard'
+    | '/files'
+    | '/messages'
+    | '/projects'
+    | '/reviews'
+    | '/settings'
     | '/checkout/return'
     | '/checkout/$package'
+    | '/messages/$id'
     | '/orders/$id'
     | '/admin/'
+    | '/messages/'
     | '/admin/orders/$id'
+    | '/billing/scope/$id'
     | '/api/public/webhooks/cashfree'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/auth'
+    | '/billing'
     | '/dashboard'
+    | '/files'
+    | '/projects'
+    | '/reviews'
+    | '/settings'
     | '/checkout/return'
     | '/checkout/$package'
+    | '/messages/$id'
     | '/orders/$id'
     | '/admin'
+    | '/messages'
     | '/admin/orders/$id'
+    | '/billing/scope/$id'
     | '/api/public/webhooks/cashfree'
   id:
     | '__root__'
@@ -146,12 +245,21 @@ export interface FileRouteTypes {
     | '/_authenticated'
     | '/auth'
     | '/_authenticated/admin'
+    | '/_authenticated/billing'
     | '/_authenticated/dashboard'
+    | '/_authenticated/files'
+    | '/_authenticated/messages'
+    | '/_authenticated/projects'
+    | '/_authenticated/reviews'
+    | '/_authenticated/settings'
     | '/checkout/return'
     | '/_authenticated/checkout/$package'
+    | '/_authenticated/messages/$id'
     | '/_authenticated/orders/$id'
     | '/_authenticated/admin/'
+    | '/_authenticated/messages/'
     | '/_authenticated/admin/orders/$id'
+    | '/_authenticated/billing/scope/$id'
     | '/api/public/webhooks/cashfree'
   fileRoutesById: FileRoutesById
 }
@@ -193,11 +301,53 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CheckoutReturnRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/settings': {
+      id: '/_authenticated/settings'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof AuthenticatedSettingsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/reviews': {
+      id: '/_authenticated/reviews'
+      path: '/reviews'
+      fullPath: '/reviews'
+      preLoaderRoute: typeof AuthenticatedReviewsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/projects': {
+      id: '/_authenticated/projects'
+      path: '/projects'
+      fullPath: '/projects'
+      preLoaderRoute: typeof AuthenticatedProjectsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/messages': {
+      id: '/_authenticated/messages'
+      path: '/messages'
+      fullPath: '/messages'
+      preLoaderRoute: typeof AuthenticatedMessagesRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/files': {
+      id: '/_authenticated/files'
+      path: '/files'
+      fullPath: '/files'
+      preLoaderRoute: typeof AuthenticatedFilesRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/dashboard': {
       id: '/_authenticated/dashboard'
       path: '/dashboard'
       fullPath: '/dashboard'
       preLoaderRoute: typeof AuthenticatedDashboardRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/billing': {
+      id: '/_authenticated/billing'
+      path: '/billing'
+      fullPath: '/billing'
+      preLoaderRoute: typeof AuthenticatedBillingRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/admin': {
@@ -206,6 +356,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/admin'
       preLoaderRoute: typeof AuthenticatedAdminRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/messages/': {
+      id: '/_authenticated/messages/'
+      path: '/'
+      fullPath: '/messages/'
+      preLoaderRoute: typeof AuthenticatedMessagesIndexRouteImport
+      parentRoute: typeof AuthenticatedMessagesRoute
     }
     '/_authenticated/admin/': {
       id: '/_authenticated/admin/'
@@ -221,6 +378,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedOrdersIdRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/messages/$id': {
+      id: '/_authenticated/messages/$id'
+      path: '/$id'
+      fullPath: '/messages/$id'
+      preLoaderRoute: typeof AuthenticatedMessagesIdRouteImport
+      parentRoute: typeof AuthenticatedMessagesRoute
+    }
     '/_authenticated/checkout/$package': {
       id: '/_authenticated/checkout/$package'
       path: '/checkout/$package'
@@ -234,6 +398,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/api/public/webhooks/cashfree'
       preLoaderRoute: typeof ApiPublicWebhooksCashfreeRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/billing/scope/$id': {
+      id: '/_authenticated/billing/scope/$id'
+      path: '/scope/$id'
+      fullPath: '/billing/scope/$id'
+      preLoaderRoute: typeof AuthenticatedBillingScopeIdRouteImport
+      parentRoute: typeof AuthenticatedBillingRoute
     }
     '/_authenticated/admin/orders/$id': {
       id: '/_authenticated/admin/orders/$id'
@@ -258,16 +429,54 @@ const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
 const AuthenticatedAdminRouteWithChildren =
   AuthenticatedAdminRoute._addFileChildren(AuthenticatedAdminRouteChildren)
 
+interface AuthenticatedBillingRouteChildren {
+  AuthenticatedBillingScopeIdRoute: typeof AuthenticatedBillingScopeIdRoute
+}
+
+const AuthenticatedBillingRouteChildren: AuthenticatedBillingRouteChildren = {
+  AuthenticatedBillingScopeIdRoute: AuthenticatedBillingScopeIdRoute,
+}
+
+const AuthenticatedBillingRouteWithChildren =
+  AuthenticatedBillingRoute._addFileChildren(AuthenticatedBillingRouteChildren)
+
+interface AuthenticatedMessagesRouteChildren {
+  AuthenticatedMessagesIdRoute: typeof AuthenticatedMessagesIdRoute
+  AuthenticatedMessagesIndexRoute: typeof AuthenticatedMessagesIndexRoute
+}
+
+const AuthenticatedMessagesRouteChildren: AuthenticatedMessagesRouteChildren = {
+  AuthenticatedMessagesIdRoute: AuthenticatedMessagesIdRoute,
+  AuthenticatedMessagesIndexRoute: AuthenticatedMessagesIndexRoute,
+}
+
+const AuthenticatedMessagesRouteWithChildren =
+  AuthenticatedMessagesRoute._addFileChildren(
+    AuthenticatedMessagesRouteChildren,
+  )
+
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminRoute: typeof AuthenticatedAdminRouteWithChildren
+  AuthenticatedBillingRoute: typeof AuthenticatedBillingRouteWithChildren
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
+  AuthenticatedFilesRoute: typeof AuthenticatedFilesRoute
+  AuthenticatedMessagesRoute: typeof AuthenticatedMessagesRouteWithChildren
+  AuthenticatedProjectsRoute: typeof AuthenticatedProjectsRoute
+  AuthenticatedReviewsRoute: typeof AuthenticatedReviewsRoute
+  AuthenticatedSettingsRoute: typeof AuthenticatedSettingsRoute
   AuthenticatedCheckoutPackageRoute: typeof AuthenticatedCheckoutPackageRoute
   AuthenticatedOrdersIdRoute: typeof AuthenticatedOrdersIdRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdminRoute: AuthenticatedAdminRouteWithChildren,
+  AuthenticatedBillingRoute: AuthenticatedBillingRouteWithChildren,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
+  AuthenticatedFilesRoute: AuthenticatedFilesRoute,
+  AuthenticatedMessagesRoute: AuthenticatedMessagesRouteWithChildren,
+  AuthenticatedProjectsRoute: AuthenticatedProjectsRoute,
+  AuthenticatedReviewsRoute: AuthenticatedReviewsRoute,
+  AuthenticatedSettingsRoute: AuthenticatedSettingsRoute,
   AuthenticatedCheckoutPackageRoute: AuthenticatedCheckoutPackageRoute,
   AuthenticatedOrdersIdRoute: AuthenticatedOrdersIdRoute,
 }
