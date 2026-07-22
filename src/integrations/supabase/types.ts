@@ -14,6 +14,33 @@ export type Database = {
   }
   public: {
     Tables: {
+      addons_config: {
+        Row: {
+          active: boolean
+          description: string
+          kind: string
+          price_usd: number
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          description?: string
+          kind: string
+          price_usd: number
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          description?: string
+          kind?: string
+          price_usd?: number
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       messages: {
         Row: {
           attachments: Json
@@ -103,12 +130,14 @@ export type Database = {
         Row: {
           amount_charged: number
           amount_usd: number
+          assigned_to: string | null
           cashfree_order_id: string | null
           cashfree_payment_id: string | null
           cashfree_payment_session_id: string | null
           created_at: string
           currency: string
           id: string
+          notes: string | null
           package: Database["public"]["Enums"]["package_slug"]
           status: Database["public"]["Enums"]["order_status"]
           updated_at: string
@@ -117,12 +146,14 @@ export type Database = {
         Insert: {
           amount_charged: number
           amount_usd: number
+          assigned_to?: string | null
           cashfree_order_id?: string | null
           cashfree_payment_id?: string | null
           cashfree_payment_session_id?: string | null
           created_at?: string
           currency?: string
           id?: string
+          notes?: string | null
           package: Database["public"]["Enums"]["package_slug"]
           status?: Database["public"]["Enums"]["order_status"]
           updated_at?: string
@@ -131,16 +162,57 @@ export type Database = {
         Update: {
           amount_charged?: number
           amount_usd?: number
+          assigned_to?: string | null
           cashfree_order_id?: string | null
           cashfree_payment_id?: string | null
           cashfree_payment_session_id?: string | null
           created_at?: string
           currency?: string
           id?: string
+          notes?: string | null
           package?: Database["public"]["Enums"]["package_slug"]
           status?: Database["public"]["Enums"]["order_status"]
           updated_at?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      packages_config: {
+        Row: {
+          active: boolean
+          cta_text: string
+          features: string[]
+          name: string
+          pages: string
+          price_usd: number
+          slug: string
+          sort_order: number
+          tagline: string
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          cta_text?: string
+          features?: string[]
+          name: string
+          pages: string
+          price_usd: number
+          slug: string
+          sort_order?: number
+          tagline?: string
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          cta_text?: string
+          features?: string[]
+          name?: string
+          pages?: string
+          price_usd?: number
+          slug?: string
+          sort_order?: number
+          tagline?: string
+          updated_at?: string
         }
         Relationships: []
       }
@@ -360,6 +432,24 @@ export type Database = {
           },
         ]
       }
+      site_content: {
+        Row: {
+          key: string
+          updated_at: string
+          value: Json
+        }
+        Insert: {
+          key: string
+          updated_at?: string
+          value?: Json
+        }
+        Update: {
+          key?: string
+          updated_at?: string
+          value?: Json
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string
@@ -395,7 +485,7 @@ export type Database = {
       }
     }
     Enums: {
-      app_role: "admin" | "client"
+      app_role: "admin" | "client" | "developer"
       order_status:
         | "pending_payment"
         | "paid"
@@ -532,7 +622,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["admin", "client"],
+      app_role: ["admin", "client", "developer"],
       order_status: [
         "pending_payment",
         "paid",

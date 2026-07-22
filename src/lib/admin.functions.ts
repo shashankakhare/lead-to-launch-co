@@ -110,3 +110,68 @@ export const adminPostUpdate = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
     return { ok: true };
   });
+
+const PackageEnum = z.enum(["one_page", "five_page", "ten_page"]);
+
+export const adminUpdateOrder = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator(
+    (input: {
+      orderId: string;
+      amount_usd?: number;
+      package?: z.infer<typeof PackageEnum>;
+      status?: z.infer<typeof StatusEnum>;
+      notes?: string;
+      assigned_to?: string | null;
+    }) =>
+      z
+        .object({
+          orderId: z.string().uuid(),
+          amount_usd: z.number().min(0).max(1000000).optional(),
+          package: PackageEnum.optional(),
+          status: StatusEnum.optional(),
+          notes: z.string().max(4000).optional(),
+          assigned_to: z.string().uuid().nullable().optional(),
+        })
+        .parse(input),
+  )
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context.supabase, context.userId);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { orderId, ...patch } = data;
+    if (Object.keys(patch).length === 0) return { ok: true };
+    const { error } = await supabaseAdmin.from("orders").update(patch).eq("id", orderId);
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
+export const adminDeleteOrder = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: { orderId: string }) =>
+    z.object({ orderId: z.string().uuid() }).parse(input),
+  )
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context.supabase, context.userId);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { error } = await supabaseAdmin.from("orders").delete().eq("id", data.orderId);
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
+export const listStaff = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    await assertAdmin(context.supabase, context.userId);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: roles } = await supabaseAdmin
+      .from("user_roles")
+      .select("user_id, role")
+      .in("role", ["admin", "developer"] as any);
+    const ids = Array.from(new Set((roles ?? []).map((r) => r.user_id)));
+    if (ids.length === 0) return [];
+    const { data: profiles } = await supabaseAdmin
+      .from("profiles")
+      .select("id, email, full_name")
+      .in("id", ids);
+    return profiles ?? [];
+  });
