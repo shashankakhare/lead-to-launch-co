@@ -22,14 +22,13 @@ export async function getPaymentTarget(orderId: string): Promise<Pick<PaymentCom
 export async function completePaidOrder(orderId: string, paymentId?: string | null): Promise<PaymentCompletion> {
   const target = await getPaymentTarget(orderId);
 
-  const orderPatch: Record<string, string> = {
+  const orderPatch = {
     status: target.isAddon ? "paid" : "requirements_pending",
   };
-  if (paymentId) orderPatch.cashfree_payment_id = paymentId;
 
   const { error: orderError } = await supabaseAdmin
     .from("orders")
-    .update(orderPatch)
+    .update(paymentId ? { ...orderPatch, cashfree_payment_id: paymentId } : orderPatch)
     .eq("id", orderId);
   if (orderError) throw new Error(orderError.message);
 
