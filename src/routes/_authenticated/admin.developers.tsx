@@ -36,7 +36,7 @@ function DevelopersPage() {
   const { data, isLoading } = useQuery({ queryKey: ["admin-developers"], queryFn: () => list() });
 
   const [open, setOpen] = useState(false);
-  const [form, setForm] = useState({ email: "", fullName: "", phone: "", hourlyRate: "" });
+  const [form, setForm] = useState({ email: "", password: "", fullName: "", phone: "", hourlyRate: "" });
   const [busy, setBusy] = useState(false);
 
   async function handleCreate(e: React.FormEvent) {
@@ -46,14 +46,15 @@ function DevelopersPage() {
       await create({
         data: {
           email: form.email,
+          password: form.password,
           fullName: form.fullName || undefined,
           phone: form.phone || undefined,
           hourlyRate: form.hourlyRate ? Number(form.hourlyRate) : undefined,
         },
       });
-      toast.success("Developer invited. Password reset email sent.");
+      toast.success("Developer created");
       setOpen(false);
-      setForm({ email: "", fullName: "", phone: "", hourlyRate: "" });
+      setForm({ email: "", password: "", fullName: "", phone: "", hourlyRate: "" });
       qc.invalidateQueries({ queryKey: ["admin-developers"] });
     } catch (e: any) {
       toast.error(e.message ?? "Failed to create");
@@ -86,12 +87,16 @@ function DevelopersPage() {
           </DialogTrigger>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>Invite developer</DialogTitle>
+              <DialogTitle>Add developer</DialogTitle>
             </DialogHeader>
             <form onSubmit={handleCreate} className="space-y-3">
               <div className="space-y-1">
                 <Label htmlFor="dev-email">Email *</Label>
                 <Input id="dev-email" type="email" required value={form.email} onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))} />
+              </div>
+              <div className="space-y-1">
+                <Label htmlFor="dev-password">Password *</Label>
+                <Input id="dev-password" type="text" required minLength={8} value={form.password} onChange={(e) => setForm((f) => ({ ...f, password: e.target.value }))} placeholder="Min 8 characters" />
               </div>
               <div className="space-y-1">
                 <Label htmlFor="dev-name">Full name</Label>
@@ -108,7 +113,7 @@ function DevelopersPage() {
                 </div>
               </div>
               <DialogFooter>
-                <Button type="submit" disabled={busy}>{busy ? "Sending…" : "Invite"}</Button>
+                <Button type="submit" disabled={busy}>{busy ? "Creating…" : "Create"}</Button>
               </DialogFooter>
             </form>
           </DialogContent>
