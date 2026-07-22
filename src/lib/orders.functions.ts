@@ -121,18 +121,17 @@ export const syncOrderStatus = createServerFn({ method: "POST" })
     if (!order || order.user_id !== userId) throw new Error("Order not found");
     if (order.status !== "pending_payment") return { status: order.status };
 
-    const { fetchCashfreeOrder } = await import("./cashfree.server");
-    const cf = await fetchCashfreeOrder(order.cashfree_order_id ?? order.id);
-    if (cf.order_status === "PAID") {
+    const { fetchCashfreeOrder, isMockPayments } = await import("./cashfree.server");
+    const isPaid = isMockPayments()
+      ? true
+      : (await fetchCashfreeOrder(order.cashfree_order_id ?? order.id)).order_status === "PAID";
+    if (isPaid) {
       const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
       await supabaseAdmin
         .from("orders")
         .update({ status: "requirements_pending" })
         .eq("id", order.id)
         .eq("status", "pending_payment");
-      // Trigger will create requirements + initial update on transition to 'paid'.
-      // We store 'requirements_pending' to move the client straight to next step.
-      // Ensure requirements row exists (trigger fires only on 'paid').
       await supabaseAdmin
         .from("project_requirements")
         .upsert({ order_id: order.id }, { onConflict: "order_id" });
