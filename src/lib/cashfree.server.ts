@@ -10,9 +10,20 @@ function creds() {
   return { appId, secret, baseUrl, isSandbox };
 }
 
-export function cashfreeMode(): "sandbox" | "production" {
+// Mock mode: enabled explicitly via env, or auto-detected when the secret is
+// still a placeholder (contains 'xxx'). Lets the full checkout flow be tested
+// end-to-end without a working Cashfree account.
+export function isMockPayments(): boolean {
+  if (process.env.PAYMENTS_MOCK === "true") return true;
+  const secret = process.env.CASHFREE_SECRET_KEY ?? "";
+  return secret.length === 0 || /x{4,}/i.test(secret);
+}
+
+export function cashfreeMode(): "sandbox" | "production" | "mock" {
+  if (isMockPayments()) return "mock";
   return creds().isSandbox ? "sandbox" : "production";
 }
+
 
 export type CreateOrderInput = {
   orderId: string;
