@@ -23,6 +23,27 @@ function AdminLoginPage() {
   const [password, setPassword] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [resetOpen, setResetOpen] = useState(false);
+  const [resetEmail, setResetEmail] = useState("");
+  const [resetBusy, setResetBusy] = useState(false);
+  const [resetMsg, setResetMsg] = useState<string | null>(null);
+
+  async function handleReset(e: React.FormEvent) {
+    e.preventDefault();
+    setResetBusy(true);
+    setResetMsg(null);
+    try {
+      const { error: resetError } = await supabase.auth.resetPasswordForEmail(resetEmail, {
+        redirectTo: `${window.location.origin}/reset-password`,
+      });
+      if (resetError) throw resetError;
+      setResetMsg("If that email exists, a reset link has been sent. Check your inbox.");
+    } catch (err) {
+      setResetMsg(err instanceof Error ? err.message : "Could not send reset email");
+    } finally {
+      setResetBusy(false);
+    }
+  }
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
@@ -80,9 +101,40 @@ function AdminLoginPage() {
           </Button>
         </form>
 
-        <p className="text-sm text-center text-muted-foreground">
-          <a href="/auth" className="text-primary hover:underline">Client login</a>
-        </p>
+        <div className="space-y-2 text-center text-sm">
+          <button
+            type="button"
+            onClick={() => { setResetOpen((v) => !v); setResetMsg(null); setResetEmail(email); }}
+            className="text-primary hover:underline"
+          >
+            Forgot password?
+          </button>
+          <div>
+            <a href="/auth" className="text-muted-foreground hover:underline">Client login</a>
+          </div>
+        </div>
+
+        {resetOpen && (
+          <form onSubmit={handleReset} className="space-y-3 pt-2 border-t">
+            <p className="text-sm text-muted-foreground">
+              Enter your admin email. We'll send a secure link to reset your password.
+            </p>
+            <div className="space-y-2">
+              <Label htmlFor="reset-email">Admin email</Label>
+              <Input
+                id="reset-email"
+                type="email"
+                value={resetEmail}
+                onChange={(e) => setResetEmail(e.target.value)}
+                required
+              />
+            </div>
+            {resetMsg && <p className="text-sm text-muted-foreground">{resetMsg}</p>}
+            <Button type="submit" variant="outline" className="w-full" disabled={resetBusy}>
+              {resetBusy ? "Sending…" : "Send reset link"}
+            </Button>
+          </form>
+        )}
       </Card>
     </div>
   );
