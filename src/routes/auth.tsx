@@ -66,9 +66,9 @@ function AuthPage() {
     }
   }
 
-  async function handleGoogle() {
+  async function handleOAuth(provider: "google" | "apple") {
     setError(null);
-    const result = await lovable.auth.signInWithOAuth("google", {
+    const result = await lovable.auth.signInWithOAuth(provider, {
       redirect_uri: window.location.origin,
     });
     if (result.error) {
@@ -92,9 +92,21 @@ function AuthPage() {
           </p>
         </div>
 
-        <Button type="button" variant="outline" className="w-full" onClick={handleGoogle}>
-          Continue with Google
-        </Button>
+        <div className="space-y-2">
+          <Button type="button" variant="outline" className="w-full" onClick={() => handleOAuth("google")}>
+            Continue with Google
+          </Button>
+          <Button
+            type="button"
+            className="w-full bg-black text-white hover:bg-black/90 dark:bg-white dark:text-black dark:hover:bg-white/90"
+            onClick={() => handleOAuth("apple")}
+          >
+            <svg viewBox="0 0 384 512" className="mr-2 h-4 w-4 fill-current" aria-hidden="true">
+              <path d="M318.7 268.7c-.2-36.7 16.4-64.4 50-84.8-18.8-26.9-47.2-41.7-84.7-44.6-35.5-2.8-74.3 20.7-88.5 20.7-15 0-49.4-19.7-76.4-19.7C63.3 141.2 4 184.8 4 273.5q0 39.3 14.4 81.2c12.8 36.7 59 126.7 107.2 125.2 25.2-.6 43-17.9 75.8-17.9 31.8 0 48.3 17.9 76.4 17.9 48.6-.7 90.4-82.5 102.6-119.3-65.2-30.7-61.7-90-61.7-91.9zM255.1 91.6C285.7 55.2 283 22 282.1 10c-27.4 1.6-59.1 18.7-77.2 39.7-19.9 22.5-31.6 50.3-29.1 81.2 29.6 2.3 56.6-12.9 79.3-39.3z"/>
+            </svg>
+            Continue with Apple
+          </Button>
+        </div>
 
         <div className="relative">
           <div className="absolute inset-0 flex items-center"><span className="w-full border-t" /></div>
