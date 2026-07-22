@@ -59,7 +59,7 @@ function Dashboard() {
           <p className="text-sm text-muted-foreground">No orders yet. Pick a package above to get started.</p>
         )}
         <div className="grid gap-3">
-          {data?.map((o) => {
+          {data?.map((o: { id: string; package: keyof typeof PACKAGES; amount_usd: number; currency: string; status: string; created_at: string }) => {
             const pkg = PACKAGES[o.package];
             return (
               <Link key={o.id} to="/orders/$id" params={{ id: o.id }}>

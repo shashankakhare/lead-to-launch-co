@@ -78,7 +78,7 @@ function OrderDetail() {
           <p className="text-sm text-muted-foreground">No updates yet.</p>
         ) : (
           <ul className="space-y-2 text-sm">
-            {data.updates.map((u) => (
+            {data.updates.map((u: { id: string; stage: string; message: string | null; created_at: string }) => (
               <li key={u.id} className="border-l-2 border-primary/40 pl-3">
                 <div className="font-medium">{u.stage}</div>
                 {u.message && <div className="text-muted-foreground">{u.message}</div>}
