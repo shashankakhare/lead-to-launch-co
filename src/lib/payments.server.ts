@@ -22,7 +22,7 @@ export async function getPaymentTarget(orderId: string): Promise<Pick<PaymentCom
 export async function completePaidOrder(orderId: string, paymentId?: string | null): Promise<PaymentCompletion> {
   const target = await getPaymentTarget(orderId);
 
-  const orderPatch = {
+  const orderPatch: { status: "paid" | "requirements_pending"; cashfree_payment_id?: string } = {
     status: target.isAddon ? "paid" : "requirements_pending",
   };
 
