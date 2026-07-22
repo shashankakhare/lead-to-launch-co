@@ -36,7 +36,7 @@ export const listDevelopers = createServerFn({ method: "GET" })
 
     return (profiles ?? []).map((p) => {
       const devOrders = (orders ?? []).filter((o) => o.assigned_to === p.id);
-      const openCount = devOrders.filter((o) => OPEN.includes(o.status)).length;
+      const openCount = devOrders.filter((o) => (OPEN as readonly string[]).includes(o.status)).length;
       const hoursWeek =
         (time ?? [])
           .filter((t) => t.developer_id === p.id && new Date(t.started_at) >= weekStart)

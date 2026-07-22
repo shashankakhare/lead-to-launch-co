@@ -36,12 +36,12 @@ export const getAdminOverview = createServerFn({ method: "GET" })
     const paid = (orders ?? []).filter((o) => o.status !== "pending_payment" && o.status !== "cancelled");
     const totalRevenue = paid.reduce((s, o) => s + Number(o.amount_usd || 0), 0);
     const ordersThisMonth = (orders ?? []).filter((o) => new Date(o.created_at) >= monthStart).length;
-    const active = (orders ?? []).filter((o) => OPEN_STATUSES.includes(o.status)).length;
+    const active = (orders ?? []).filter((o) => (OPEN_STATUSES as readonly string[]).includes(o.status)).length;
     const pendingReqs = (orders ?? []).filter(
       (o) => o.status === "paid" || o.status === "requirements_pending",
     ).length;
     const unassignedPaid = (orders ?? []).filter(
-      (o) => OPEN_STATUSES.includes(o.status) && !o.assigned_to,
+      (o) => (OPEN_STATUSES as readonly string[]).includes(o.status) && !o.assigned_to,
     );
     const avgRating =
       (ratings ?? []).length > 0
