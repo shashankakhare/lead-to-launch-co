@@ -1,7 +1,10 @@
 import { createFileRoute, Outlet, redirect, Link, useRouter, useNavigate } from "@tanstack/react-router";
+import { useServerFn } from "@tanstack/react-start";
+import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/use-auth";
+import { amIAdmin } from "@/lib/admin.functions";
 
 export const Route = createFileRoute("/_authenticated")({
   ssr: false,
@@ -17,6 +20,12 @@ function AuthedLayout() {
   const { user } = useAuth();
   const router = useRouter();
   const navigate = useNavigate();
+  const adminFn = useServerFn(amIAdmin);
+  const { data: adminData } = useQuery({
+    queryKey: ["am-i-admin"],
+    queryFn: () => adminFn(),
+    enabled: Boolean(user),
+  });
 
   async function signOut() {
     await supabase.auth.signOut();
@@ -32,6 +41,11 @@ function AuthedLayout() {
             Building Website Now
           </Link>
           <div className="flex items-center gap-3 text-sm">
+            {adminData?.isAdmin && (
+              <Link to="/admin" className="text-muted-foreground hover:text-foreground">
+                Admin
+              </Link>
+            )}
             <span className="hidden sm:inline text-muted-foreground">{user?.email}</span>
             <Button variant="ghost" size="sm" onClick={signOut}>Sign out</Button>
           </div>
