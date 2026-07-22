@@ -25,9 +25,8 @@ export function cashfreeMode(): "sandbox" | "production" | "mock" {
 }
 
 export function isPaymentTestMode(): boolean {
-  // Current launch/testing phase: let every checkout complete inside the app
-  // without waiting on Cashfree credentials, hosted checkout, or webhooks.
-  if (process.env.PAYMENTS_LIVE !== "true") return true;
+  // Only bypass Cashfree for explicit mock/placeholder credentials or sandbox keys.
+  // Live Cashfree credentials must always open the hosted checkout.
   if (isMockPayments()) return true;
   try {
     return creds().isSandbox;
