@@ -286,8 +286,9 @@ function Pricing() {
                     </li>
                   ))}
                 </ul>
-                <a
-                  href="#start"
+                <Link
+                  to="/checkout/$package"
+                  params={{ package: t.slug }}
                   className={`w-full py-3 rounded-xl font-semibold text-center transition-all ${
                     t.featured
                       ? "bg-accent text-accent-foreground hover:opacity-90 shadow-lg shadow-accent/20"
@@ -295,7 +296,7 @@ function Pricing() {
                   }`}
                 >
                   {t.cta}
-                </a>
+                </Link>
               </div>
             </Reveal>
           ))}
