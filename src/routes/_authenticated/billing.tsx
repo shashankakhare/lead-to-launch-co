@@ -62,7 +62,8 @@ function Billing() {
                   <Badge variant={STATUS_VARIANT[o.status] ?? "secondary"}>{o.status.replace("_", " ")}</Badge>
                   {o.status === "pending_payment" ? (
                     <Button size="sm" variant="secondary" asChild>
-                      <Link to="/checkout/return" search={{ order_id: o.id } as never}>Pay</Link>
+                      <Link to="/checkout/return" search={{ order_id: o.id }}>Pay</Link>
+
                     </Button>
                   ) : (
                     <Button size="sm" variant="ghost" title="Download coming soon" disabled>
