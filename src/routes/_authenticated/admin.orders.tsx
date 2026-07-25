@@ -1,8 +1,9 @@
 import { useServerFn } from "@tanstack/react-start";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState, useMemo } from "react";
-import { listAllOrders } from "@/lib/admin.functions";
+import { toast } from "sonner";
+import { listAllOrders, adminBackfillAssignments } from "@/lib/admin.functions";
 import { PACKAGES } from "@/lib/packages";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -19,9 +20,30 @@ const STATUSES = ["all", "pending_payment", "paid", "requirements_pending", "in_
 
 function AdminOrders() {
   const fn = useServerFn(listAllOrders);
+  const backfillFn = useServerFn(adminBackfillAssignments);
+  const qc = useQueryClient();
   const { data, isLoading } = useQuery({ queryKey: ["admin-orders"], queryFn: () => fn() });
   const [q, setQ] = useState("");
   const [status, setStatus] = useState("all");
+
+  const unassignedPaidCount = useMemo(
+    () =>
+      (data ?? []).filter(
+        (o: any) =>
+          !o.assigned_to &&
+          ["paid", "requirements_pending", "in_progress", "review"].includes(o.status),
+      ).length,
+    [data],
+  );
+
+  const backfill = useMutation({
+    mutationFn: () => backfillFn(),
+    onSuccess: (res: any) => {
+      toast.success(`Auto-assigned ${res.assigned} of ${res.total} project${res.total === 1 ? "" : "s"}`);
+      qc.invalidateQueries({ queryKey: ["admin-orders"] });
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
 
   const rows = useMemo(() => {
     return (data ?? []).filter((o: any) => {
