@@ -5,6 +5,7 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { PACKAGES, type PackageSlug } from "./packages";
 
 const PackageEnum = z.enum(["one_page", "five_page", "ten_page"]);
+const RevisionStatusEnum = z.enum(["pending", "addressed", "approved"]);
 
 export const createCheckout = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
