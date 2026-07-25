@@ -62,26 +62,45 @@ function AdminOrders() {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between flex-wrap gap-3">
-        <h1 className="text-2xl font-semibold">All orders</h1>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() =>
-            downloadCsv(
-              "orders.csv",
-              rows.map((o: any) => ({
-                id: o.id,
-                package: o.package,
-                amount_usd: o.amount_usd,
-                status: o.status,
-                client: o.profile?.email ?? "",
-                created_at: o.created_at,
-              })),
-            )
-          }
-        >
-          Export CSV
-        </Button>
+        <div>
+          <h1 className="text-2xl font-semibold">All orders</h1>
+          {unassignedPaidCount > 0 && (
+            <p className="text-xs text-muted-foreground mt-1">
+              {unassignedPaidCount} paid project{unassignedPaidCount === 1 ? "" : "s"} without a developer.
+            </p>
+          )}
+        </div>
+        <div className="flex gap-2">
+          <Button
+            variant="default"
+            size="sm"
+            disabled={backfill.isPending || unassignedPaidCount === 0}
+            onClick={() => backfill.mutate()}
+            title="Auto-assign every unassigned paid/active project to the lowest-workload developer"
+          >
+            {backfill.isPending ? "Assigning…" : `Auto-assign ${unassignedPaidCount || ""}`.trim()}
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() =>
+              downloadCsv(
+                "orders.csv",
+                rows.map((o: any) => ({
+                  id: o.id,
+                  package: o.package,
+                  amount_usd: o.amount_usd,
+                  status: o.status,
+                  client: o.profile?.email ?? "",
+                  assigned_to: o.assigned_to ?? "",
+                  created_at: o.created_at,
+                })),
+              )
+            }
+          >
+            Export CSV
+          </Button>
+        </div>
       </div>
 
       <div className="flex gap-3 flex-wrap">
