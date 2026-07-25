@@ -14,6 +14,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { CheckCircle2, MessageSquareWarning } from "lucide-react";
+import { ProjectIntakeForm } from "@/components/ProjectIntakeForm";
 
 export const Route = createFileRoute("/_authenticated/orders/$id")({
   head: () => ({ meta: [{ title: "Project · Building Website Now" }] }),
@@ -82,9 +83,10 @@ function OrderDetail() {
       </Card>
 
       {data.order.status !== "pending_payment" && (
-        <RequirementsForm
+        <ProjectIntakeForm
           orderId={id}
-          initial={data.requirements}
+          packageSlug={data.order.package as any}
+          initial={data.requirements as any}
           onSaved={() => qc.invalidateQueries({ queryKey: ["order", id] })}
         />
       )}

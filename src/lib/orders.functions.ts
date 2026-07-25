@@ -186,7 +186,8 @@ const RequirementsSchema = z.object({
   referenceSites: z.string().max(2000).optional(),
   contentNotes: z.string().max(10000).optional(),
   logoUrl: z.string().url().optional().or(z.literal("")),
-  referenceImages: z.array(z.string().url()).max(20).optional(),
+  referenceImages: z.array(z.string().url()).max(50).optional(),
+  intakeData: z.record(z.string(), z.any()).optional(),
   submit: z.boolean().optional(),
 });
 
@@ -204,6 +205,7 @@ export const saveRequirements = createServerFn({ method: "POST" })
       content_notes: data.contentNotes ?? null,
       logo_url: data.logoUrl || null,
       reference_images: data.referenceImages ?? [],
+      intake_data: data.intakeData ?? {},
       submitted: data.submit ?? false,
     };
     const { error } = await supabase
