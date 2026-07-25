@@ -242,3 +242,82 @@ export const rateOrder = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
     return { ok: true };
   });
+
+export const requestRevision = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: { orderId: string; message: string }) =>
+    z.object({ orderId: z.string().uuid(), message: z.string().min(1).max(4000) }).parse(input),
+  )
+  .handler(async ({ data, context }) => {
+    const { supabase, userId } = context;
+    const { data: order } = await supabase
+      .from("orders")
+      .select("id, user_id, status, assigned_to")
+      .eq("id", data.orderId)
+      .maybeSingle();
+    if (!order || order.user_id !== userId) throw new Error("Order not found");
+    if (order.status !== "review") throw new Error("Project is not currently in review");
+
+    const { error } = await supabase.from("revisions").insert({
+      order_id: data.orderId,
+      requested_by: userId,
+      message: data.message,
+      status: "pending",
+    });
+    if (error) throw new Error(error.message);
+
+    await supabase.from("project_updates").insert({
+      order_id: data.orderId,
+      stage: "Revision requested",
+      message: data.message,
+    });
+
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    await supabaseAdmin.from("notifications").insert({
+      user_id: order.assigned_to ?? order.user_id,
+      type: "update",
+      title: "Client requested revisions",
+      body: data.message.slice(0, 140),
+      link: `/developer/orders/${data.orderId}`,
+    });
+    return { ok: true };
+  });
+
+export const approveOrder = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: { orderId: string }) => z.object({ orderId: z.string().uuid() }).parse(input))
+  .handler(async ({ data, context }) => {
+    const { supabase, userId } = context;
+    const { data: order } = await supabase
+      .from("orders")
+      .select("id, user_id, status, assigned_to")
+      .eq("id", data.orderId)
+      .maybeSingle();
+    if (!order || order.user_id !== userId) throw new Error("Order not found");
+    if (order.status !== "review") throw new Error("Project is not currently in review");
+
+    const { error } = await supabase.from("revisions").insert({
+      order_id: data.orderId,
+      requested_by: userId,
+      message: "Client approved the deliverable.",
+      status: "approved",
+    });
+    if (error) throw new Error(error.message);
+
+    await supabase.from("orders").update({ status: "delivered" }).eq("id", data.orderId);
+    await supabase.from("project_updates").insert({
+      order_id: data.orderId,
+      stage: "Approved & delivered",
+      message: "You approved the website. The project is now complete.",
+    });
+
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    await supabaseAdmin.from("notifications").insert({
+      user_id: order.assigned_to ?? order.user_id,
+      type: "status",
+      title: "Client approved the project",
+      body: "The project has been marked as delivered.",
+      link: `/developer/orders/${data.orderId}`,
+    });
+    return { ok: true };
+  });
