@@ -100,7 +100,7 @@ export async function autoAssignOrderToDeveloper(
       trigger_source: trigger,
       reason: options.reason ?? "Order already had an assignee; auto-assignment skipped.",
       initiated_by: options.initiatedBy ?? null,
-      metadata: { skipped: true, ...(options.metadata ?? {}) },
+      metadata: { skipped: true, ...(options.metadata ?? {}) } as any,
     });
     return previousAssignee;
   }
@@ -120,7 +120,7 @@ export async function autoAssignOrderToDeveloper(
       reason: "No developers available to receive assignment.",
       candidate_count: 0,
       initiated_by: options.initiatedBy ?? null,
-      metadata: options.metadata ?? null,
+      metadata: (options.metadata ?? null) as any,
     });
     return null;
   }
@@ -167,7 +167,7 @@ export async function autoAssignOrderToDeveloper(
     active_project_count: pickedCount,
     workload_snapshot: workloadSnapshot,
     initiated_by: options.initiatedBy ?? null,
-    metadata: options.metadata ?? null,
+    metadata: (options.metadata ?? null) as any,
   });
 
   await supabaseAdmin.from("notifications").insert({
