@@ -55,9 +55,9 @@ export async function completePaidOrder(orderId: string, paymentId?: string | nu
 const ACTIVE_STATUSES = [
   "requirements_pending",
   "in_progress",
-  "in_review",
+  "review",
   "paid",
-];
+] as const;
 
 /**
  * Auto-assign an order to the developer with the fewest active projects.
