@@ -93,7 +93,7 @@ export const getMyOrder = createServerFn({ method: "GET" })
   )
   .handler(async ({ data, context }) => {
     const { supabase } = context;
-    const [{ data: order }, { data: req }, { data: updates }, { data: rating }] = await Promise.all([
+    const [{ data: order }, { data: req }, { data: updates }, { data: rating }, { data: revisions }] = await Promise.all([
       supabase.from("orders").select("*").eq("id", data.orderId).maybeSingle(),
       supabase.from("project_requirements").select("*").eq("order_id", data.orderId).maybeSingle(),
       supabase
@@ -102,9 +102,14 @@ export const getMyOrder = createServerFn({ method: "GET" })
         .eq("order_id", data.orderId)
         .order("created_at", { ascending: true }),
       supabase.from("ratings").select("*").eq("order_id", data.orderId).maybeSingle(),
+      supabase
+        .from("revisions")
+        .select("*")
+        .eq("order_id", data.orderId)
+        .order("created_at", { ascending: true }),
     ]);
     if (!order) throw new Error("Order not found");
-    return { order, requirements: req, updates: updates ?? [], rating };
+    return { order, requirements: req, updates: updates ?? [], rating, revisions: revisions ?? [] };
   });
 
 export const syncOrderStatus = createServerFn({ method: "POST" })
