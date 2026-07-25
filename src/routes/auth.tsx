@@ -34,9 +34,9 @@ function AuthPage() {
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
-      if (data.session) navigate({ to: (redirect ?? "/dashboard") as string });
+      if (data.session) navigate({ to: "/dashboard" });
     });
-  }, [navigate, redirect]);
+  }, [navigate]);
 
   async function handleEmail(e: React.FormEvent) {
     e.preventDefault();
