@@ -50,12 +50,13 @@ export const devGetOrder = createServerFn({ method: "GET" })
     const { data: order } = await supabaseAdmin.from("orders").select("*").eq("id", data.orderId).maybeSingle();
     if (!order) throw new Error("Order not found");
     if (!isAdmin && order.assigned_to !== context.userId) throw new Error("Forbidden: not assigned to you");
-    const [{ data: req }, { data: updates }, { data: profile }] = await Promise.all([
+    const [{ data: req }, { data: updates }, { data: profile }, { data: revisions }] = await Promise.all([
       supabaseAdmin.from("project_requirements").select("*").eq("order_id", data.orderId).maybeSingle(),
       supabaseAdmin.from("project_updates").select("*").eq("order_id", data.orderId).order("created_at", { ascending: true }),
       supabaseAdmin.from("profiles").select("id, email, full_name, phone, company").eq("id", order.user_id).maybeSingle(),
+      supabaseAdmin.from("revisions").select("*").eq("order_id", data.orderId).order("created_at", { ascending: true }),
     ]);
-    return { order, requirements: req, updates: updates ?? [], profile };
+    return { order, requirements: req, updates: updates ?? [], profile, revisions: revisions ?? [] };
   });
 
 const StatusEnum = z.enum([
