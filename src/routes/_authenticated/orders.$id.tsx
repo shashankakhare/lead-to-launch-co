@@ -105,6 +105,15 @@ function OrderDetail() {
         )}
       </Card>
 
+      {(data.order.status === "review" || data.order.status === "delivered") && (
+        <ReviewActions
+          orderId={id}
+          status={data.order.status}
+          revisions={data.revisions}
+          onSaved={() => qc.invalidateQueries({ queryKey: ["order", id] })}
+        />
+      )}
+
       {data.order.status === "delivered" && (
         <RatingForm
           orderId={id}
