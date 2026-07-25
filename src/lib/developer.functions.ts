@@ -2,6 +2,8 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
+const RevisionStatusEnum = z.enum(["pending", "addressed", "approved"]);
+
 async function assertDeveloper(supabase: any, userId: string) {
   const { data: isDev } = await supabase.rpc("has_role", { _user_id: userId, _role: "developer" });
   const { data: isAdmin } = await supabase.rpc("has_role", { _user_id: userId, _role: "admin" });
