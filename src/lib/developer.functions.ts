@@ -93,6 +93,7 @@ export const devUpdateOrderStatus = createServerFn({ method: "POST" })
     });
     await supabaseAdmin.from("notifications").insert({
       user_id: order.user_id,
+      type: "status",
       title: "Project status updated",
       body: `Your project is now "${data.status}".`,
       link: `/orders/${data.orderId}`,
@@ -121,6 +122,7 @@ export const devPostUpdate = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
     await supabaseAdmin.from("notifications").insert({
       user_id: order.user_id,
+      type: "update",
       title: `Update: ${data.stage}`,
       body: data.message.slice(0, 140),
       link: `/orders/${data.orderId}`,
