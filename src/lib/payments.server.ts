@@ -88,6 +88,7 @@ export async function completePaidOrder(orderId: string, paymentId?: string | nu
       .eq("invoice_order_id", orderId);
     if (addonError) throw new Error(addonError.message);
 
+    await notifyPaymentStatus(orderId, "paid");
     return { status: "paid", projectOrderId: target.projectOrderId, isAddon: true };
   }
 
@@ -97,6 +98,7 @@ export async function completePaidOrder(orderId: string, paymentId?: string | nu
   if (reqError) throw new Error(reqError.message);
 
   await autoAssignOrderToDeveloper(orderId);
+  await notifyPaymentStatus(orderId, "paid");
 
   return { status: "requirements_pending", projectOrderId: orderId, isAddon: false };
 }
