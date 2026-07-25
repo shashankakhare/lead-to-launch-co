@@ -59,24 +59,71 @@ const ACTIVE_STATUSES = [
   "paid",
 ] as const;
 
+export type AssignmentTrigger =
+  | "payment_completed"
+  | "manual_reassign"
+  | "admin_backfill"
+  | "requirements_submitted";
+
+type AutoAssignOptions = {
+  trigger?: AssignmentTrigger;
+  initiatedBy?: string | null;
+  reason?: string;
+  metadata?: Record<string, unknown>;
+};
+
 /**
  * Auto-assign an order to the developer with the fewest active projects.
+ * Records an audit log entry describing what triggered the assignment,
+ * the workload snapshot at decision time, and who initiated it.
  * No-op if the order already has an assignee or no developers exist.
  */
-export async function autoAssignOrderToDeveloper(orderId: string): Promise<string | null> {
+export async function autoAssignOrderToDeveloper(
+  orderId: string,
+  options: AutoAssignOptions = {},
+): Promise<string | null> {
+  const trigger = options.trigger ?? "payment_completed";
   const { data: order } = await supabaseAdmin
     .from("orders")
     .select("id, assigned_to")
     .eq("id", orderId)
     .maybeSingle();
-  if (!order || order.assigned_to) return order?.assigned_to ?? null;
+  if (!order) return null;
+
+  const previousAssignee = order.assigned_to ?? null;
+
+  if (previousAssignee) {
+    await supabaseAdmin.from("assignment_audit_log").insert({
+      order_id: orderId,
+      assigned_to: previousAssignee,
+      previous_assignee: previousAssignee,
+      trigger_source: trigger,
+      reason: options.reason ?? "Order already had an assignee; auto-assignment skipped.",
+      initiated_by: options.initiatedBy ?? null,
+      metadata: { skipped: true, ...(options.metadata ?? {}) },
+    });
+    return previousAssignee;
+  }
 
   const { data: devs } = await supabaseAdmin
     .from("user_roles")
     .select("user_id")
     .eq("role", "developer");
   const devIds = (devs ?? []).map((d) => d.user_id as string);
-  if (devIds.length === 0) return null;
+
+  if (devIds.length === 0) {
+    await supabaseAdmin.from("assignment_audit_log").insert({
+      order_id: orderId,
+      assigned_to: null,
+      previous_assignee: null,
+      trigger_source: trigger,
+      reason: "No developers available to receive assignment.",
+      candidate_count: 0,
+      initiated_by: options.initiatedBy ?? null,
+      metadata: options.metadata ?? null,
+    });
+    return null;
+  }
 
   const { data: activeOrders } = await supabaseAdmin
     .from("orders")
@@ -104,6 +151,24 @@ export async function autoAssignOrderToDeveloper(orderId: string): Promise<strin
     .update({ assigned_to: pick })
     .eq("id", orderId);
   if (error) throw new Error(error.message);
+
+  const workloadSnapshot = Object.fromEntries(counts);
+  const pickedCount = counts.get(pick) ?? 0;
+
+  await supabaseAdmin.from("assignment_audit_log").insert({
+    order_id: orderId,
+    assigned_to: pick,
+    previous_assignee: null,
+    trigger_source: trigger,
+    reason:
+      options.reason ??
+      `Auto-assigned via lowest-workload rule (${pickedCount} active project${pickedCount === 1 ? "" : "s"} out of ${devIds.length} developer${devIds.length === 1 ? "" : "s"}).`,
+    candidate_count: devIds.length,
+    active_project_count: pickedCount,
+    workload_snapshot: workloadSnapshot,
+    initiated_by: options.initiatedBy ?? null,
+    metadata: options.metadata ?? null,
+  });
 
   await supabaseAdmin.from("notifications").insert({
     user_id: pick,
