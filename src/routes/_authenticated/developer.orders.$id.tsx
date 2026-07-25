@@ -3,8 +3,8 @@ import { useServerFn } from "@tanstack/react-start";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { toast } from "sonner";
-import { ArrowLeft, PlayCircle, CheckCircle2, XCircle, Clock } from "lucide-react";
-import { devGetOrder, devUpdateOrderStatus, devPostUpdate, devLogTime } from "@/lib/developer.functions";
+import { ArrowLeft, PlayCircle, CheckCircle2, XCircle, Clock, MessageSquareWarning } from "lucide-react";
+import { devGetOrder, devUpdateOrderStatus, devPostUpdate, devLogTime, resolveRevision } from "@/lib/developer.functions";
 import { PACKAGES } from "@/lib/packages";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -181,6 +181,13 @@ function DevOrderDetail() {
         )}
       </Card>
 
+      <RevisionsPanel
+        orderId={id}
+        revisions={data.revisions}
+        status={data.order.status}
+        onSaved={() => qc.invalidateQueries({ queryKey: ["dev-order", id] })}
+      />
+
       <Card className="p-5 space-y-3">
         <h2 className="font-medium">Post an update to the client</h2>
         <div className="grid gap-3 sm:grid-cols-3">
@@ -226,5 +233,122 @@ function DevOrderDetail() {
         </Button>
       </Card>
     </div>
+  );
+}
+
+function RevisionsPanel({
+  orderId,
+  revisions,
+  status,
+  onSaved,
+}: {
+  orderId: string;
+  revisions: { id: string; status: string; message: string; created_at: string }[];
+  status: string;
+  onSaved: () => void;
+}) {
+  const resolve = useServerFn(resolveRevision);
+  const updateStatus = useServerFn(devUpdateOrderStatus);
+  const [activeId, setActiveId] = useState<string | null>(null);
+  const [reply, setReply] = useState("");
+  const qc = useQueryClient();
+
+  const resolveMut = useMutation({
+    mutationFn: ({ revisionId, message }: { revisionId: string; message: string }) =>
+      resolve({ data: { orderId, revisionId, message } }),
+    onSuccess: () => {
+      toast.success("Revision marked addressed");
+      setActiveId(null);
+      setReply("");
+      onSaved();
+      qc.invalidateQueries({ queryKey: ["dev-orders"] });
+    },
+    onError: (e: any) => toast.error(e.message ?? "Failed"),
+  });
+
+  const pending = revisions.filter((r) => r.status === "pending");
+  const addressed = revisions.filter((r) => r.status === "addressed");
+  const approved = revisions.find((r) => r.status === "approved");
+
+  return (
+    <Card className="p-5 space-y-4">
+      <div className="flex items-center justify-between">
+        <h2 className="font-medium flex items-center gap-2">
+          <MessageSquareWarning className="h-4 w-4" /> Revisions
+        </h2>
+        {approved && <Badge variant="default">Approved by client</Badge>}
+      </div>
+
+      {approved ? (
+        <p className="text-sm text-muted-foreground">The client approved this project.</p>
+      ) : (
+        <>
+          {pending.length === 0 && addressed.length === 0 && (
+            <p className="text-sm text-muted-foreground">No revision requests yet.</p>
+          )}
+
+          {pending.length > 0 && (
+            <div className="space-y-3">
+              <div className="text-sm font-medium text-destructive">Pending revisions</div>
+              {pending.map((r) => (
+                <div key={r.id} className="space-y-2 text-sm border-l-2 border-destructive/50 pl-3">
+                  <div className="text-muted-foreground">{r.message}</div>
+                  <div className="text-xs text-muted-foreground">{new Date(r.created_at).toLocaleString()}</div>
+                  {activeId === r.id ? (
+                    <div className="space-y-2">
+                      <Textarea
+                        rows={2}
+                        placeholder="Describe what you changed and send it back to review..."
+                        value={reply}
+                        onChange={(e) => setReply(e.target.value)}
+                      />
+                      <div className="flex gap-2">
+                        <Button
+                          size="sm"
+                          onClick={() => resolveMut.mutate({ revisionId: r.id, message: reply })}
+                          disabled={resolveMut.isPending || !reply.trim()}
+                        >
+                          Mark addressed
+                        </Button>
+                        <Button size="sm" variant="outline" onClick={() => { setActiveId(null); setReply(""); }}>
+                          Cancel
+                        </Button>
+                      </div>
+                    </div>
+                  ) : (
+                    <Button size="sm" variant="secondary" onClick={() => setActiveId(r.id)}>
+                      Address revision
+                    </Button>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+
+          {addressed.length > 0 && (
+            <div className="space-y-2">
+              <div className="text-sm font-medium text-primary">Addressed</div>
+              {addressed.map((r) => (
+                <div key={r.id} className="text-sm border-l-2 border-primary/40 pl-3">
+                  <div className="text-muted-foreground">{r.message}</div>
+                  <div className="text-xs text-muted-foreground">{new Date(r.created_at).toLocaleString()}</div>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {status !== "review" && status !== "delivered" && pending.length > 0 && (
+            <div className="pt-2 border-t border-white/5">
+              <Button
+                size="sm"
+                onClick={() => updateStatus({ data: { orderId, status: "review" } })}
+              >
+                Send back to review
+              </Button>
+            </div>
+          )}
+        </>
+      )}
+    </Card>
   );
 }

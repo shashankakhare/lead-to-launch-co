@@ -2,7 +2,8 @@ import { useServerFn } from "@tanstack/react-start";
 import { createFileRoute } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
-import { getMyOrder, saveRequirements, rateOrder, syncOrderStatus } from "@/lib/orders.functions";
+import { toast } from "sonner";
+import { getMyOrder, saveRequirements, rateOrder, syncOrderStatus, requestRevision, approveOrder } from "@/lib/orders.functions";
 import { PACKAGES } from "@/lib/packages";
 import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
@@ -12,6 +13,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
+import { CheckCircle2, MessageSquareWarning } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/orders/$id")({
   head: () => ({ meta: [{ title: "Project · Building Website Now" }] }),
@@ -103,6 +105,15 @@ function OrderDetail() {
           </ul>
         )}
       </Card>
+
+      {(data.order.status === "review" || data.order.status === "delivered") && (
+        <ReviewActions
+          orderId={id}
+          status={data.order.status}
+          revisions={data.revisions}
+          onSaved={() => qc.invalidateQueries({ queryKey: ["order", id] })}
+        />
+      )}
 
       {data.order.status === "delivered" && (
         <RatingForm
@@ -286,6 +297,116 @@ function RatingForm({
       <Button onClick={() => m.mutate()} disabled={m.isPending}>
         {existing ? "Update review" : "Submit review"}
       </Button>
+    </Card>
+  );
+}
+
+function ReviewActions({
+  orderId,
+  status,
+  revisions,
+  onSaved,
+}: {
+  orderId: string;
+  status: string;
+  revisions: { id: string; status: string; message: string; created_at: string }[];
+  onSaved: () => void;
+}) {
+  const request = useServerFn(requestRevision);
+  const approve = useServerFn(approveOrder);
+  const [message, setMessage] = useState("");
+  const qc = useQueryClient();
+
+  const requestMut = useMutation({
+    mutationFn: () => request({ data: { orderId, message } }),
+    onSuccess: () => {
+      toast("Revision request sent");
+      setMessage("");
+      onSaved();
+      qc.invalidateQueries({ queryKey: ["my-orders"] });
+    },
+    onError: (e: any) => toast(e.message ?? "Failed"),
+  });
+
+  const approveMut = useMutation({
+    mutationFn: () => approve({ data: { orderId } }),
+    onSuccess: () => {
+      toast("Project approved and delivered");
+      onSaved();
+      qc.invalidateQueries({ queryKey: ["my-orders"] });
+    },
+    onError: (e: any) => toast(e.message ?? "Failed"),
+  });
+
+  const pending = revisions.filter((r) => r.status === "pending");
+  const addressed = revisions.filter((r) => r.status === "addressed");
+  const approved = revisions.find((r) => r.status === "approved");
+
+  return (
+    <Card className="p-5 space-y-4">
+      <div className="flex items-center justify-between">
+        <h2 className="font-medium flex items-center gap-2">
+          <MessageSquareWarning className="h-4 w-4" /> Review & approve
+        </h2>
+        {approved && <Badge variant="default">Approved</Badge>}
+      </div>
+
+      {approved ? (
+        <p className="text-sm text-muted-foreground">You approved this project. It is now delivered.</p>
+      ) : (
+        <>
+          {pending.length > 0 && (
+            <div className="space-y-2">
+              <div className="text-sm font-medium text-destructive">Pending revision requests</div>
+              {pending.map((r) => (
+                <div key={r.id} className="text-sm border-l-2 border-destructive/50 pl-3">
+                  <div className="text-muted-foreground">{r.message}</div>
+                  <div className="text-xs text-muted-foreground">{new Date(r.created_at).toLocaleString()}</div>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {addressed.length > 0 && (
+            <div className="space-y-2">
+              <div className="text-sm font-medium text-primary">Addressed by developer</div>
+              {addressed.map((r) => (
+                <div key={r.id} className="text-sm border-l-2 border-primary/40 pl-3">
+                  <div className="text-muted-foreground">{r.message}</div>
+                  <div className="text-xs text-muted-foreground">{new Date(r.created_at).toLocaleString()}</div>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {status === "review" && (
+            <div className="space-y-3 pt-2 border-t border-white/5">
+              <Label>Request a change</Label>
+              <Textarea
+                rows={3}
+                placeholder="Describe what needs to change before you approve the website..."
+                value={message}
+                onChange={(e) => setMessage(e.target.value)}
+              />
+              <div className="flex flex-wrap gap-3">
+                <Button
+                  variant="secondary"
+                  onClick={() => requestMut.mutate()}
+                  disabled={requestMut.isPending || !message.trim()}
+                >
+                  <MessageSquareWarning className="h-4 w-4 mr-1" /> Request revision
+                </Button>
+                <Button
+                  onClick={() => approveMut.mutate()}
+                  disabled={approveMut.isPending}
+                >
+                  <CheckCircle2 className="h-4 w-4 mr-1" /> Approve & finalize
+                </Button>
+              </div>
+            </div>
+          )}
+        </>
+      )}
     </Card>
   );
 }
