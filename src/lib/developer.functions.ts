@@ -157,3 +157,46 @@ export const devLogTime = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
     return { ok: true };
   });
+
+export const resolveRevision = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: { revisionId: string; orderId: string; message: string }) =>
+    z.object({
+      revisionId: z.string().uuid(),
+      orderId: z.string().uuid(),
+      message: z.string().min(1).max(4000),
+    }).parse(i),
+  )
+  .handler(async ({ data, context }) => {
+    const { isAdmin } = await assertDeveloper(context.supabase, context.userId);
+    const order = await ensureAssigned(data.orderId, context.userId, isAdmin);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: rev } = await supabaseAdmin
+      .from("revisions")
+      .select("id, status")
+      .eq("id", data.revisionId)
+      .eq("order_id", data.orderId)
+      .maybeSingle();
+    if (!rev) throw new Error("Revision not found");
+    if (rev.status !== "pending") throw new Error("Revision is already resolved");
+
+    const { error } = await supabaseAdmin
+      .from("revisions")
+      .update({ status: "addressed" })
+      .eq("id", data.revisionId);
+    if (error) throw new Error(error.message);
+
+    await supabaseAdmin.from("project_updates").insert({
+      order_id: data.orderId,
+      stage: "Revision addressed",
+      message: data.message,
+    });
+    await supabaseAdmin.from("notifications").insert({
+      user_id: order.user_id,
+      type: "update",
+      title: "Developer addressed your revision request",
+      body: data.message.slice(0, 140),
+      link: `/orders/${data.orderId}`,
+    });
+    return { ok: true };
+  });
