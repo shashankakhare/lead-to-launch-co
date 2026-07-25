@@ -218,9 +218,12 @@ function PrivacyPage() {
 
         <div className="mt-16 pt-8 border-t border-border flex flex-col sm:flex-row justify-between items-center gap-4 text-sm text-muted-foreground">
           <p>&copy; {new Date().getFullYear()} buildingwebsitenow.com — All rights reserved.</p>
-          <div className="flex gap-6">
+          <div className="flex flex-wrap gap-6">
             <Link to="/refund-policy" className="hover:text-foreground transition-colors">
               Refund Policy
+            </Link>
+            <Link to="/terms" className="hover:text-foreground transition-colors">
+              Terms &amp; Conditions
             </Link>
             <Link to="/" className="hover:text-foreground transition-colors">
               Home

@@ -368,12 +368,15 @@ function StartCTA() {
               <span className="text-background/70 font-medium">Icon Computers, Nagpur</span>
             </p>
           </div>
-          <div className="flex gap-8">
+          <div className="flex flex-wrap justify-center gap-6 md:gap-8">
             <Link to="/privacy" className="hover:text-background transition-colors">
               Privacy Policy
             </Link>
             <Link to="/refund-policy" className="hover:text-background transition-colors">
               Refund Policy
+            </Link>
+            <Link to="/terms" className="hover:text-background transition-colors">
+              Terms &amp; Conditions
             </Link>
             <a href="#faq" className="hover:text-background transition-colors">
               Contact

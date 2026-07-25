@@ -1,4 +1,53 @@
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
+import { sendTemplateEmail } from "@/lib/email-templates/send-email";
+import { PACKAGES, type PackageSlug } from "@/lib/packages";
+
+export async function notifyPaymentStatus(
+  orderId: string,
+  status: "paid" | "failed",
+): Promise<void> {
+  try {
+    const { data: order } = await supabaseAdmin
+      .from("orders")
+      .select("id, user_id, package, amount_usd, amount_charged, currency")
+      .eq("id", orderId)
+      .maybeSingle();
+    if (!order) return;
+
+    const { data: profile } = await supabaseAdmin
+      .from("profiles")
+      .select("email, full_name")
+      .eq("id", order.user_id)
+      .maybeSingle();
+
+    const email = profile?.email;
+    if (!email) return;
+
+    const pkg = PACKAGES[order.package as PackageSlug];
+    const packageLabel = pkg ? `${pkg.name} — ${pkg.pages}` : String(order.package);
+    const amount = order.currency === "USD"
+      ? `$${order.amount_usd} USD`
+      : `${order.currency} ${order.amount_charged} (≈ $${order.amount_usd} USD)`;
+
+    const result = await sendTemplateEmail("payment-status", email, {
+      idempotencyKey: `payment-status-${status}-${orderId}`,
+      templateData: {
+        name: profile?.full_name ?? undefined,
+        orderId: orderId.slice(0, 8),
+        packageLabel,
+        amount,
+        status,
+        nextStepUrl: "https://eazybuildwebsite.com/dashboard",
+      },
+    });
+    if (!result.sent) {
+      console.warn(`[payment-status] not sent (${result.reason}) for order ${orderId}`);
+    }
+  } catch (err) {
+    console.error(`[payment-status] failed to send for order ${orderId}`, err);
+  }
+}
+
 
 export type PaymentCompletion = {
   status: string;
@@ -39,6 +88,7 @@ export async function completePaidOrder(orderId: string, paymentId?: string | nu
       .eq("invoice_order_id", orderId);
     if (addonError) throw new Error(addonError.message);
 
+    await notifyPaymentStatus(orderId, "paid");
     return { status: "paid", projectOrderId: target.projectOrderId, isAddon: true };
   }
 
@@ -48,6 +98,7 @@ export async function completePaidOrder(orderId: string, paymentId?: string | nu
   if (reqError) throw new Error(reqError.message);
 
   await autoAssignOrderToDeveloper(orderId);
+  await notifyPaymentStatus(orderId, "paid");
 
   return { status: "requirements_pending", projectOrderId: orderId, isAddon: false };
 }

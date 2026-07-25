@@ -26,6 +26,9 @@ export const Route = createFileRoute("/api/public/webhooks/cashfree")({
         if (orderId && paymentStatus === "SUCCESS") {
           const { completePaidOrder } = await import("@/lib/payments.server");
           await completePaidOrder(orderId, cfPaymentId ? String(cfPaymentId) : null);
+        } else if (orderId && paymentStatus && paymentStatus !== "PENDING") {
+          const { notifyPaymentStatus } = await import("@/lib/payments.server");
+          await notifyPaymentStatus(orderId, "failed");
         }
         return new Response("ok");
       },
