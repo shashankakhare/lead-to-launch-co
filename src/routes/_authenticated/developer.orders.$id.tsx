@@ -22,7 +22,7 @@ const STATUSES = [
 
 export const Route = createFileRoute("/_authenticated/developer/orders/$id")({
   head: () => ({ meta: [{ title: "Project · Developer" }] }),
-  component: DevOrderDetail;
+  component: DevOrderDetail,
 });
 
 function DevOrderDetail() {
