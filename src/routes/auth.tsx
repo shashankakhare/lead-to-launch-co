@@ -68,8 +68,13 @@ function AuthPage() {
 
   async function handleOAuth(provider: "google" | "apple") {
     setError(null);
+    // Return to /auth so the effect above picks up the fresh session and
+    // navigates to the intended destination (checkout, dashboard, etc.).
+    const returnTo = `${window.location.origin}/auth${
+      redirect ? `?redirect=${encodeURIComponent(redirect)}` : ""
+    }`;
     const result = await lovable.auth.signInWithOAuth(provider, {
-      redirect_uri: window.location.origin,
+      redirect_uri: returnTo,
     });
     if (result.error) {
       setError(result.error.message);
@@ -79,6 +84,7 @@ function AuthPage() {
     await router.invalidate();
     navigate({ to: (redirect ?? "/dashboard") as string });
   }
+
 
   return (
     <div className="min-h-screen flex items-center justify-center p-6 bg-gradient-to-b from-background to-muted/30">
