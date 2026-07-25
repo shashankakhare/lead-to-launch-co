@@ -82,9 +82,10 @@ function OrderDetail() {
       </Card>
 
       {data.order.status !== "pending_payment" && (
-        <RequirementsForm
+        <ProjectIntakeForm
           orderId={id}
-          initial={data.requirements}
+          packageSlug={data.order.package as any}
+          initial={data.requirements as any}
           onSaved={() => qc.invalidateQueries({ queryKey: ["order", id] })}
         />
       )}
