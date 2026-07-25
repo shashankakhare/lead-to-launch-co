@@ -15,6 +15,8 @@ export const createCheckout = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     const pkg = PACKAGES[data.packageSlug];
     const { supabase, userId, claims } = context;
+    const { usdToChargeAmount, createCashfreeOrder, cashfreeMode, isPaymentTestMode } = await import("./cashfree.server");
+    const charge = usdToChargeAmount(pkg.priceUsd);
 
     const { data: profile } = await supabase
       .from("profiles")
@@ -28,15 +30,13 @@ export const createCheckout = createServerFn({ method: "POST" })
         user_id: userId,
         package: data.packageSlug,
         amount_usd: pkg.priceUsd,
-        amount_charged: pkg.priceUsd,
-        currency: "USD",
+        amount_charged: charge.amount,
+        currency: charge.currency,
         status: "pending_payment",
       })
       .select("id")
       .single();
     if (insertErr || !order) throw new Error(insertErr?.message ?? "Failed to create order");
-
-    const { createCashfreeOrder, cashfreeMode, isPaymentTestMode } = await import("./cashfree.server");
 
     // Test payment path: skip Cashfree entirely so checkout cannot get stuck during testing.
     if (isPaymentTestMode()) {
@@ -46,6 +46,8 @@ export const createCheckout = createServerFn({ method: "POST" })
         orderId: order.id,
         paymentSessionId: "mock",
         mode: "mock" as const,
+        chargeAmount: charge.amount,
+        chargeCurrency: charge.currency,
       };
     }
 
@@ -55,8 +57,8 @@ export const createCheckout = createServerFn({ method: "POST" })
 
     const cf = await createCashfreeOrder({
       orderId: order.id,
-      amount: pkg.priceUsd,
-      currency: "USD",
+      amount: charge.amount,
+      currency: charge.currency,
       customer: {
         id: userId,
         email: profile?.email ?? (claims.email as string) ?? "customer@example.com",
@@ -72,7 +74,13 @@ export const createCheckout = createServerFn({ method: "POST" })
       .update({ cashfree_order_id: cf.orderId, cashfree_payment_session_id: cf.paymentSessionId })
       .eq("id", order.id);
 
-    return { orderId: order.id, paymentSessionId: cf.paymentSessionId, mode: cashfreeMode() };
+    return {
+      orderId: order.id,
+      paymentSessionId: cf.paymentSessionId,
+      mode: cashfreeMode(),
+      chargeAmount: charge.amount,
+      chargeCurrency: charge.currency,
+    };
   });
 
 export const listMyOrders = createServerFn({ method: "GET" })

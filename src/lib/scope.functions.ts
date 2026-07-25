@@ -47,6 +47,8 @@ export const purchaseAddon = createServerFn({ method: "POST" })
     const qty = data.quantity ?? 1;
     const total = catalog.priceUsd * qty;
     const { supabase, userId, claims } = context;
+    const { usdToChargeAmount, createCashfreeOrder, cashfreeMode, isPaymentTestMode } = await import("./cashfree.server");
+    const charge = usdToChargeAmount(total);
 
     // Verify order ownership
     const { data: order } = await supabase
@@ -69,8 +71,8 @@ export const purchaseAddon = createServerFn({ method: "POST" })
         user_id: userId,
         package: "one_page", // reused as invoice type; UI will surface "Scope add-on"
         amount_usd: total,
-        amount_charged: total,
-        currency: "USD",
+        amount_charged: charge.amount,
+        currency: charge.currency,
         status: "pending_payment",
       })
       .select("id")
@@ -90,7 +92,6 @@ export const purchaseAddon = createServerFn({ method: "POST" })
     });
     if (addonErr) throw new Error(addonErr.message);
 
-    const { createCashfreeOrder, cashfreeMode, isPaymentTestMode } = await import("./cashfree.server");
 
     if (isPaymentTestMode()) {
       const { completePaidOrder } = await import("./payments.server");
@@ -108,8 +109,8 @@ export const purchaseAddon = createServerFn({ method: "POST" })
 
     const cf = await createCashfreeOrder({
       orderId: invoiceOrder.id,
-      amount: total,
-      currency: "USD",
+      amount: charge.amount,
+      currency: charge.currency,
       customer: {
         id: userId,
         email: profile?.email ?? (claims.email as string) ?? "customer@example.com",

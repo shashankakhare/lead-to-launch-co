@@ -24,6 +24,28 @@ export function cashfreeMode(): "sandbox" | "production" | "mock" {
   return creds().isSandbox ? "sandbox" : "production";
 }
 
+/**
+ * Currency to charge orders in. Indian Cashfree merchant accounts default to
+ * INR; USD must be explicitly activated in the Cashfree dashboard. Until USD
+ * is enabled we charge the INR equivalent of the USD catalog price, otherwise
+ * Cashfree rejects the order with "order Currency not enabled for this
+ * merchant account". Set CASHFREE_CURRENCY=USD once USD is activated.
+ */
+export function chargeCurrency(): string {
+  return (process.env.CASHFREE_CURRENCY ?? "INR").toUpperCase();
+}
+
+/**
+ * Convert a USD catalog price to the charge-currency amount using
+ * USD_TO_INR_RATE (default 86). Returns 1:1 when charging in USD.
+ */
+export function usdToChargeAmount(usd: number): { amount: number; currency: string } {
+  const currency = chargeCurrency();
+  if (currency === "USD") return { amount: usd, currency };
+  const rate = Number(process.env.USD_TO_INR_RATE ?? "86") || 86;
+  return { amount: Math.round(usd * rate * 100) / 100, currency };
+}
+
 export function isPaymentTestMode(): boolean {
   // Only bypass Cashfree for explicit mock/placeholder credentials or sandbox keys.
   // Live Cashfree credentials must always open the hosted checkout.
