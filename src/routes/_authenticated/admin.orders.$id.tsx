@@ -194,9 +194,74 @@ function AdminOrderDetail() {
           {data.rating.review && <p className="text-muted-foreground whitespace-pre-wrap">{data.rating.review}</p>}
         </Card>
       )}
+
+      <AssignmentAuditCard orderId={id} />
     </div>
   );
 }
+
+function AssignmentAuditCard({ orderId }: { orderId: string }) {
+  const listFn = useServerFn(listAssignmentAuditLog);
+  const { data, isLoading } = useQuery({
+    queryKey: ["assignment-audit", orderId],
+    queryFn: () => listFn({ data: { orderId } }),
+  });
+
+  return (
+    <Card className="p-5 space-y-3">
+      <div>
+        <h2 className="font-medium">Assignment audit log</h2>
+        <p className="text-xs text-muted-foreground">
+          Every auto-assignment decision for this order, including trigger, reason, and workload snapshot.
+        </p>
+      </div>
+      {isLoading && <p className="text-sm text-muted-foreground">Loading…</p>}
+      {!isLoading && (data ?? []).length === 0 && (
+        <p className="text-sm text-muted-foreground">No assignment events recorded yet.</p>
+      )}
+      <ul className="space-y-3">
+        {(data ?? []).map((row: any) => (
+          <li key={row.id} className="rounded-md border p-3 text-sm space-y-1">
+            <div className="flex items-center justify-between flex-wrap gap-2">
+              <div className="flex items-center gap-2">
+                <Badge variant="outline" className="text-xs">{row.trigger_source}</Badge>
+                <span className="font-medium">
+                  {row.assigned_to_profile?.full_name ?? row.assigned_to_profile?.email ?? (row.assigned_to ? row.assigned_to.slice(0, 8) : "Unassigned")}
+                </span>
+                {row.previous_assignee && row.previous_assignee !== row.assigned_to && (
+                  <span className="text-xs text-muted-foreground">
+                    (was {row.previous_assignee_profile?.email ?? row.previous_assignee.slice(0, 8)})
+                  </span>
+                )}
+              </div>
+              <span className="text-xs text-muted-foreground">
+                {new Date(row.created_at).toLocaleString()}
+              </span>
+            </div>
+            <p className="text-muted-foreground">{row.reason}</p>
+            {(row.candidate_count != null || row.active_project_count != null) && (
+              <p className="text-xs text-muted-foreground">
+                Candidates: {row.candidate_count ?? "—"} · Picked developer's active load: {row.active_project_count ?? "—"}
+              </p>
+            )}
+            {row.initiated_by_profile && (
+              <p className="text-xs text-muted-foreground">
+                Initiated by {row.initiated_by_profile.email}
+              </p>
+            )}
+            {row.workload_snapshot && (
+              <details className="text-xs text-muted-foreground">
+                <summary className="cursor-pointer">Workload snapshot</summary>
+                <pre className="mt-1 whitespace-pre-wrap break-all">{JSON.stringify(row.workload_snapshot, null, 2)}</pre>
+              </details>
+            )}
+          </li>
+        ))}
+      </ul>
+    </Card>
+  );
+}
+
 
 type OrderRow = {
   id: string;
