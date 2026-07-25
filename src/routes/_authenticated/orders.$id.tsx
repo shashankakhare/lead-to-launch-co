@@ -2,7 +2,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { createFileRoute } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
-import { getMyOrder, saveRequirements, rateOrder, syncOrderStatus } from "@/lib/orders.functions";
+import { getMyOrder, saveRequirements, rateOrder, syncOrderStatus, requestRevision, approveOrder } from "@/lib/orders.functions";
 import { PACKAGES } from "@/lib/packages";
 import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
@@ -12,6 +12,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
+import { CheckCircle2, MessageSquareWarning } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/orders/$id")({
   head: () => ({ meta: [{ title: "Project · Building Website Now" }] }),
