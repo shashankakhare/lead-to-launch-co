@@ -384,6 +384,44 @@ export type Database = {
           },
         ]
       }
+      revisions: {
+        Row: {
+          created_at: string
+          id: string
+          message: string
+          order_id: string
+          requested_by: string
+          status: Database["public"]["Enums"]["revision_status"]
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          message: string
+          order_id: string
+          requested_by: string
+          status?: Database["public"]["Enums"]["revision_status"]
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          message?: string
+          order_id?: string
+          requested_by?: string
+          status?: Database["public"]["Enums"]["revision_status"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "revisions_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       scope_addons: {
         Row: {
           created_at: string
@@ -551,6 +589,7 @@ export type Database = {
         | "delivered"
         | "cancelled"
       package_slug: "one_page" | "five_page" | "ten_page"
+      revision_status: "pending" | "addressed" | "approved"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -689,6 +728,7 @@ export const Constants = {
         "cancelled",
       ],
       package_slug: ["one_page", "five_page", "ten_page"],
+      revision_status: ["pending", "addressed", "approved"],
     },
   },
 } as const
