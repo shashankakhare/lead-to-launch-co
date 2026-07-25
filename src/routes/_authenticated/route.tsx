@@ -14,6 +14,7 @@ import {
 import { SidebarProvider, SidebarTrigger, SidebarInset } from "@/components/ui/sidebar";
 import { useAuth } from "@/hooks/use-auth";
 import { amIAdmin } from "@/lib/admin.functions";
+import { amIDeveloper } from "@/lib/developer.functions";
 import { listMyNotifications, markAllRead, markNotificationRead } from "@/lib/notifications.functions";
 import { AppSidebar } from "@/components/app-sidebar";
 
@@ -35,6 +36,12 @@ function AuthedLayout() {
   const { data: adminData } = useQuery({
     queryKey: ["am-i-admin"],
     queryFn: () => adminFn(),
+    enabled: Boolean(user),
+  });
+  const devFn = useServerFn(amIDeveloper);
+  const { data: devData } = useQuery({
+    queryKey: ["am-i-developer"],
+    queryFn: () => devFn(),
     enabled: Boolean(user),
   });
 
