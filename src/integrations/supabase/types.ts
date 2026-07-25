@@ -41,6 +41,59 @@ export type Database = {
         }
         Relationships: []
       }
+      assignment_audit_log: {
+        Row: {
+          active_project_count: number | null
+          assigned_to: string | null
+          candidate_count: number | null
+          created_at: string
+          id: string
+          initiated_by: string | null
+          metadata: Json | null
+          order_id: string
+          previous_assignee: string | null
+          reason: string
+          trigger_source: string
+          workload_snapshot: Json | null
+        }
+        Insert: {
+          active_project_count?: number | null
+          assigned_to?: string | null
+          candidate_count?: number | null
+          created_at?: string
+          id?: string
+          initiated_by?: string | null
+          metadata?: Json | null
+          order_id: string
+          previous_assignee?: string | null
+          reason: string
+          trigger_source: string
+          workload_snapshot?: Json | null
+        }
+        Update: {
+          active_project_count?: number | null
+          assigned_to?: string | null
+          candidate_count?: number | null
+          created_at?: string
+          id?: string
+          initiated_by?: string | null
+          metadata?: Json | null
+          order_id?: string
+          previous_assignee?: string | null
+          reason?: string
+          trigger_source?: string
+          workload_snapshot?: Json | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "assignment_audit_log_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       messages: {
         Row: {
           attachments: Json
