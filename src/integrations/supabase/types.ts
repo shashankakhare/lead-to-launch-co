@@ -321,6 +321,7 @@ export type Database = {
           content_notes: string | null
           created_at: string
           industry: string | null
+          intake_data: Json
           logo_url: string | null
           order_id: string
           reference_images: Json
@@ -334,6 +335,7 @@ export type Database = {
           content_notes?: string | null
           created_at?: string
           industry?: string | null
+          intake_data?: Json
           logo_url?: string | null
           order_id: string
           reference_images?: Json
@@ -347,6 +349,7 @@ export type Database = {
           content_notes?: string | null
           created_at?: string
           industry?: string | null
+          intake_data?: Json
           logo_url?: string | null
           order_id?: string
           reference_images?: Json

@@ -1,0 +1,1 @@
+ALTER TABLE public.project_requirements ADD COLUMN IF NOT EXISTS intake_data jsonb NOT NULL DEFAULT '{}'::jsonb;
