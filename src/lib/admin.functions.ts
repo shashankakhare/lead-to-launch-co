@@ -175,3 +175,46 @@ export const listStaff = createServerFn({ method: "GET" })
       .in("id", ids);
     return profiles ?? [];
   });
+
+export const listAssignmentAuditLog = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: { orderId?: string; developerId?: string; limit?: number } = {}) =>
+    z
+      .object({
+        orderId: z.string().uuid().optional(),
+        developerId: z.string().uuid().optional(),
+        limit: z.number().int().min(1).max(200).optional(),
+      })
+      .parse(input),
+  )
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context.supabase, context.userId);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    let q = supabaseAdmin
+      .from("assignment_audit_log")
+      .select("*")
+      .order("created_at", { ascending: false })
+      .limit(data.limit ?? 50);
+    if (data.orderId) q = q.eq("order_id", data.orderId);
+    if (data.developerId) q = q.eq("assigned_to", data.developerId);
+    const { data: rows, error } = await q;
+    if (error) throw new Error(error.message);
+
+    const userIds = Array.from(
+      new Set(
+        (rows ?? [])
+          .flatMap((r) => [r.assigned_to, r.previous_assignee, r.initiated_by])
+          .filter((v): v is string => Boolean(v)),
+      ),
+    );
+    const { data: profiles } = userIds.length
+      ? await supabaseAdmin.from("profiles").select("id, email, full_name").in("id", userIds)
+      : { data: [] as { id: string; email: string | null; full_name: string | null }[] };
+    const map = new Map((profiles ?? []).map((p) => [p.id, p]));
+    return (rows ?? []).map((r) => ({
+      ...r,
+      assigned_to_profile: r.assigned_to ? map.get(r.assigned_to) ?? null : null,
+      previous_assignee_profile: r.previous_assignee ? map.get(r.previous_assignee) ?? null : null,
+      initiated_by_profile: r.initiated_by ? map.get(r.initiated_by) ?? null : null,
+    }));
+  });
