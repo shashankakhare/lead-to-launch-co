@@ -25,7 +25,7 @@ export const listAllOrders = createServerFn({ method: "GET" })
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data: orders, error } = await supabaseAdmin
       .from("orders")
-      .select("id, package, amount_usd, currency, status, created_at, user_id")
+      .select("id, package, amount_usd, currency, status, created_at, user_id, assigned_to")
       .order("created_at", { ascending: false });
     if (error) throw new Error(error.message);
     const ids = Array.from(new Set((orders ?? []).map((o) => o.user_id)));
