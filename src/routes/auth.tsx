@@ -34,9 +34,9 @@ function AuthPage() {
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
-      if (data.session) navigate({ to: (redirect ?? "/dashboard") as string });
+      if (data.session) navigate({ to: "/dashboard" });
     });
-  }, [navigate, redirect]);
+  }, [navigate]);
 
   async function handleEmail(e: React.FormEvent) {
     e.preventDefault();
@@ -68,11 +68,9 @@ function AuthPage() {
 
   async function handleOAuth(provider: "google" | "apple") {
     setError(null);
-    // Return to /auth so the effect above picks up the fresh session and
-    // navigates to the intended destination (checkout, dashboard, etc.).
-    const returnTo = `${window.location.origin}/auth${
-      redirect ? `?redirect=${encodeURIComponent(redirect)}` : ""
-    }`;
+    // Always return to /auth so the effect above picks up the fresh session
+    // and navigates the user to their client dashboard.
+    const returnTo = `${window.location.origin}/auth`;
     const result = await lovable.auth.signInWithOAuth(provider, {
       redirect_uri: returnTo,
     });
@@ -82,7 +80,7 @@ function AuthPage() {
     }
     if (result.redirected) return;
     await router.invalidate();
-    navigate({ to: (redirect ?? "/dashboard") as string });
+    navigate({ to: "/dashboard" });
   }
 
 
