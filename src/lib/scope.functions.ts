@@ -92,7 +92,6 @@ export const purchaseAddon = createServerFn({ method: "POST" })
     });
     if (addonErr) throw new Error(addonErr.message);
 
-
     if (isPaymentTestMode()) {
       const { completePaidOrder } = await import("./payments.server");
       await completePaidOrder(invoiceOrder.id, "test-bypass");
