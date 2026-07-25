@@ -81,7 +81,7 @@ function AuthedLayout() {
   return (
     <SidebarProvider>
       <div className="min-h-screen flex w-full bg-background">
-        <AppSidebar isAdmin={adminData?.isAdmin} />
+        <AppSidebar isAdmin={adminData?.isAdmin} isDeveloper={devData?.isDeveloper} />
         <SidebarInset>
           <header className="sticky top-0 z-40 border-b border-white/5 bg-background/70 backdrop-blur-xl">
             <div className="flex items-center justify-between px-4 sm:px-6 h-14">
