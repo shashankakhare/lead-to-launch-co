@@ -181,6 +181,13 @@ function DevOrderDetail() {
         )}
       </Card>
 
+      <RevisionsPanel
+        orderId={id}
+        revisions={data.revisions}
+        status={data.order.status}
+        onSaved={() => qc.invalidateQueries({ queryKey: ["dev-order", id] })}
+      />
+
       <Card className="p-5 space-y-3">
         <h2 className="font-medium">Post an update to the client</h2>
         <div className="grid gap-3 sm:grid-cols-3">
