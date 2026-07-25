@@ -361,11 +361,23 @@ function StartCTA() {
           </a>
         </Reveal>
         <div className="mt-24 pt-10 border-t border-background/10 flex flex-col md:flex-row justify-between items-center gap-6 text-sm text-background/40">
-          <p>&copy; {new Date().getFullYear()} buildingwebsitenow.com — All rights reserved.</p>
+          <div className="flex flex-col items-center md:items-start gap-1">
+            <p>&copy; {new Date().getFullYear()} buildingwebsitenow.com — All rights reserved.</p>
+            <p>
+              A product of{" "}
+              <span className="text-background/70 font-medium">Icon Computers, Nagpur</span>
+            </p>
+          </div>
           <div className="flex gap-8">
-            <a href="#" className="hover:text-background">Terms</a>
-            <a href="#" className="hover:text-background">Privacy</a>
-            <a href="#" className="hover:text-background">Contact</a>
+            <Link to="/privacy" className="hover:text-background transition-colors">
+              Privacy Policy
+            </Link>
+            <Link to="/refund-policy" className="hover:text-background transition-colors">
+              Refund Policy
+            </Link>
+            <a href="#faq" className="hover:text-background transition-colors">
+              Contact
+            </a>
           </div>
         </div>
       </div>
