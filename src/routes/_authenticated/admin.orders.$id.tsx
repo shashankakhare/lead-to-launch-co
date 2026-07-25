@@ -9,9 +9,9 @@ import {
   adminPostUpdate,
   adminUpdateOrder,
   adminDeleteOrder,
-  listStaff,
   listAssignmentAuditLog,
 } from "@/lib/admin.functions";
+import { listDevelopers, autoAssignOrder } from "@/lib/admin-developers.functions";
 import { PACKAGES } from "@/lib/packages";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -276,10 +276,11 @@ type OrderRow = {
 function EditOrderCard({ order }: { order: OrderRow }) {
   const qc = useQueryClient();
   const navigate = useNavigate();
-  const staffFn = useServerFn(listStaff);
+  const devsFn = useServerFn(listDevelopers);
   const updateFn = useServerFn(adminUpdateOrder);
   const deleteFn = useServerFn(adminDeleteOrder);
-  const { data: staff } = useQuery({ queryKey: ["admin-staff"], queryFn: () => staffFn() });
+  const autoAssignFn = useServerFn(autoAssignOrder);
+  const { data: devs } = useQuery({ queryKey: ["admin-developers-list"], queryFn: () => devsFn() });
 
   const [pkg, setPkg] = useState(order.package);
   const [amount, setAmount] = useState(Number(order.amount_usd));
@@ -307,6 +308,18 @@ function EditOrderCard({ order }: { order: OrderRow }) {
     onSuccess: () => {
       toast.success("Order updated");
       qc.invalidateQueries({ queryKey: ["admin-order", order.id] });
+      qc.invalidateQueries({ queryKey: ["assignment-audit", order.id] });
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  const autoAssign = useMutation({
+    mutationFn: (force: boolean) => autoAssignFn({ data: { orderId: order.id, force } }),
+    onSuccess: (res: any) => {
+      if (res?.unchanged) toast.info("Already assigned to the lowest-workload developer");
+      else toast.success("Auto-assigned to the lowest-workload developer");
+      qc.invalidateQueries({ queryKey: ["admin-order", order.id] });
+      qc.invalidateQueries({ queryKey: ["assignment-audit", order.id] });
     },
     onError: (e: Error) => toast.error(e.message),
   });
@@ -319,6 +332,8 @@ function EditOrderCard({ order }: { order: OrderRow }) {
     },
     onError: (e: Error) => toast.error(e.message),
   });
+
+  const activeDevs = (devs ?? []).filter((d: any) => d.is_active !== false);
 
   return (
     <Card className="p-5 space-y-3">
@@ -350,17 +365,31 @@ function EditOrderCard({ order }: { order: OrderRow }) {
         </div>
         <div className="space-y-1 sm:col-span-2">
           <Label>Assigned developer</Label>
-          <Select value={assignedTo} onValueChange={setAssignedTo}>
-            <SelectTrigger><SelectValue placeholder="Unassigned" /></SelectTrigger>
-            <SelectContent>
-              <SelectItem value="unassigned">Unassigned</SelectItem>
-              {(staff ?? []).map((s) => (
-                <SelectItem key={s.id} value={s.id}>
-                  {s.full_name ?? s.email ?? s.id}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <div className="flex gap-2 flex-wrap">
+            <Select value={assignedTo} onValueChange={setAssignedTo}>
+              <SelectTrigger className="flex-1 min-w-[220px]"><SelectValue placeholder="Unassigned" /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="unassigned">Unassigned</SelectItem>
+                {activeDevs.map((d: any) => (
+                  <SelectItem key={d.id} value={d.id}>
+                    {(d.full_name ?? d.email ?? d.id)} · {d.openCount ?? 0} active
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={autoAssign.isPending}
+              onClick={() => autoAssign.mutate(Boolean(order.assigned_to))}
+              title={order.assigned_to ? "Force reassign to the lowest-workload developer" : "Auto-assign to the lowest-workload developer"}
+            >
+              {order.assigned_to ? "Auto-reassign" : "Auto-assign"}
+            </Button>
+          </div>
+          <p className="text-xs text-muted-foreground">
+            Change and click Save to shift this project between developers. Auto-assign picks the developer with the fewest active projects.
+          </p>
         </div>
         <div className="space-y-1 sm:col-span-2">
           <Label>Internal notes</Label>

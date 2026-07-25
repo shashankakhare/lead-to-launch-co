@@ -198,10 +198,19 @@ export const removeDeveloper = createServerFn({ method: "POST" })
 
 export const autoAssignOrder = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: { orderId: string }) => z.object({ orderId: z.string().uuid() }).parse(i))
+  .inputValidator((i: { orderId: string; force?: boolean }) =>
+    z.object({ orderId: z.string().uuid(), force: z.boolean().optional() }).parse(i),
+  )
   .handler(async ({ data, context }) => {
     await assertAdmin(context.supabase, context.userId);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+    const { data: current } = await supabaseAdmin
+      .from("orders")
+      .select("assigned_to")
+      .eq("id", data.orderId)
+      .maybeSingle();
+    const previousAssignee = current?.assigned_to ?? null;
 
     const { data: roles } = await supabaseAdmin
       .from("user_roles")
@@ -226,13 +235,56 @@ export const autoAssignOrder = createServerFn({ method: "POST" })
     (openOrders ?? []).forEach((o) => {
       if (o.assigned_to) counts.set(o.assigned_to, (counts.get(o.assigned_to) || 0) + 1);
     });
-    const [pick] = [...counts.entries()].sort((a, b) => a[1] - b[1]);
+    // Pick lowest-workload dev, excluding current assignee when force-reassigning.
+    const candidates = [...counts.entries()].filter(
+      ([id]) => !(previousAssignee && data.force && id === previousAssignee),
+    );
+    const pool = candidates.length > 0 ? candidates : [...counts.entries()];
+    const [pick] = pool.sort((a, b) => a[1] - b[1]);
+    const pickId = pick[0];
+
+    if (pickId === previousAssignee) {
+      return { ok: true, assignedTo: pickId, unchanged: true };
+    }
+
     const { error } = await supabaseAdmin
       .from("orders")
-      .update({ assigned_to: pick[0] })
+      .update({ assigned_to: pickId })
       .eq("id", data.orderId);
     if (error) throw new Error(error.message);
-    return { ok: true, assignedTo: pick[0] };
+
+    await supabaseAdmin.from("assignment_audit_log").insert({
+      order_id: data.orderId,
+      assigned_to: pickId,
+      previous_assignee: previousAssignee,
+      trigger_source: previousAssignee ? "manual_reassign" : "admin_backfill",
+      reason: previousAssignee
+        ? "Admin force auto-assigned via lowest-workload rule."
+        : "Admin auto-assigned via lowest-workload rule.",
+      candidate_count: active.length,
+      active_project_count: counts.get(pickId) ?? 0,
+      workload_snapshot: Object.fromEntries(counts) as any,
+      initiated_by: context.userId,
+    });
+
+    await supabaseAdmin.from("notifications").insert({
+      user_id: pickId,
+      type: "assignment",
+      title: "New project assigned",
+      body: `Order ${data.orderId.slice(0, 8)} has been assigned to you.`,
+      link: `/developer/orders/${data.orderId}`,
+    });
+
+    if (previousAssignee && previousAssignee !== pickId) {
+      await supabaseAdmin.from("notifications").insert({
+        user_id: previousAssignee,
+        type: "assignment",
+        title: "Project reassigned",
+        body: `Order ${data.orderId.slice(0, 8)} has been moved to another developer.`,
+      });
+    }
+
+    return { ok: true, assignedTo: pickId };
   });
 
 export const adminUpsertTimeEntry = createServerFn({ method: "POST" })

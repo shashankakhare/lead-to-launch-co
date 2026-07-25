@@ -1,8 +1,9 @@
 import { useServerFn } from "@tanstack/react-start";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState, useMemo } from "react";
-import { listAllOrders } from "@/lib/admin.functions";
+import { toast } from "sonner";
+import { listAllOrders, adminBackfillAssignments } from "@/lib/admin.functions";
 import { PACKAGES } from "@/lib/packages";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -19,9 +20,30 @@ const STATUSES = ["all", "pending_payment", "paid", "requirements_pending", "in_
 
 function AdminOrders() {
   const fn = useServerFn(listAllOrders);
+  const backfillFn = useServerFn(adminBackfillAssignments);
+  const qc = useQueryClient();
   const { data, isLoading } = useQuery({ queryKey: ["admin-orders"], queryFn: () => fn() });
   const [q, setQ] = useState("");
   const [status, setStatus] = useState("all");
+
+  const unassignedPaidCount = useMemo(
+    () =>
+      (data ?? []).filter(
+        (o: any) =>
+          !o.assigned_to &&
+          ["paid", "requirements_pending", "in_progress", "review"].includes(o.status),
+      ).length,
+    [data],
+  );
+
+  const backfill = useMutation({
+    mutationFn: () => backfillFn(),
+    onSuccess: (res: any) => {
+      toast.success(`Auto-assigned ${res.assigned} of ${res.total} project${res.total === 1 ? "" : "s"}`);
+      qc.invalidateQueries({ queryKey: ["admin-orders"] });
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
 
   const rows = useMemo(() => {
     return (data ?? []).filter((o: any) => {
@@ -40,26 +62,45 @@ function AdminOrders() {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between flex-wrap gap-3">
-        <h1 className="text-2xl font-semibold">All orders</h1>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() =>
-            downloadCsv(
-              "orders.csv",
-              rows.map((o: any) => ({
-                id: o.id,
-                package: o.package,
-                amount_usd: o.amount_usd,
-                status: o.status,
-                client: o.profile?.email ?? "",
-                created_at: o.created_at,
-              })),
-            )
-          }
-        >
-          Export CSV
-        </Button>
+        <div>
+          <h1 className="text-2xl font-semibold">All orders</h1>
+          {unassignedPaidCount > 0 && (
+            <p className="text-xs text-muted-foreground mt-1">
+              {unassignedPaidCount} paid project{unassignedPaidCount === 1 ? "" : "s"} without a developer.
+            </p>
+          )}
+        </div>
+        <div className="flex gap-2">
+          <Button
+            variant="default"
+            size="sm"
+            disabled={backfill.isPending || unassignedPaidCount === 0}
+            onClick={() => backfill.mutate()}
+            title="Auto-assign every unassigned paid/active project to the lowest-workload developer"
+          >
+            {backfill.isPending ? "Assigning…" : `Auto-assign ${unassignedPaidCount || ""}`.trim()}
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() =>
+              downloadCsv(
+                "orders.csv",
+                rows.map((o: any) => ({
+                  id: o.id,
+                  package: o.package,
+                  amount_usd: o.amount_usd,
+                  status: o.status,
+                  client: o.profile?.email ?? "",
+                  assigned_to: o.assigned_to ?? "",
+                  created_at: o.created_at,
+                })),
+              )
+            }
+          >
+            Export CSV
+          </Button>
+        </div>
       </div>
 
       <div className="flex gap-3 flex-wrap">

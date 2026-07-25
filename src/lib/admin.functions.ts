@@ -25,7 +25,7 @@ export const listAllOrders = createServerFn({ method: "GET" })
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data: orders, error } = await supabaseAdmin
       .from("orders")
-      .select("id, package, amount_usd, currency, status, created_at, user_id")
+      .select("id, package, amount_usd, currency, status, created_at, user_id, assigned_to")
       .order("created_at", { ascending: false });
     if (error) throw new Error(error.message);
     const ids = Array.from(new Set((orders ?? []).map((o) => o.user_id)));
@@ -140,9 +140,83 @@ export const adminUpdateOrder = createServerFn({ method: "POST" })
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { orderId, ...patch } = data;
     if (Object.keys(patch).length === 0) return { ok: true };
+
+    let previousAssignee: string | null = null;
+    const isAssignmentChange = Object.prototype.hasOwnProperty.call(patch, "assigned_to");
+    if (isAssignmentChange) {
+      const { data: current } = await supabaseAdmin
+        .from("orders")
+        .select("assigned_to")
+        .eq("id", orderId)
+        .maybeSingle();
+      previousAssignee = current?.assigned_to ?? null;
+    }
+
     const { error } = await supabaseAdmin.from("orders").update(patch).eq("id", orderId);
     if (error) throw new Error(error.message);
+
+    if (isAssignmentChange && previousAssignee !== (patch.assigned_to ?? null)) {
+      const newAssignee = patch.assigned_to ?? null;
+      await supabaseAdmin.from("assignment_audit_log").insert({
+        order_id: orderId,
+        assigned_to: newAssignee,
+        previous_assignee: previousAssignee,
+        trigger_source: "manual_reassign",
+        reason: previousAssignee
+          ? newAssignee
+            ? "Admin reassigned project to a different developer."
+            : "Admin unassigned the project."
+          : "Admin manually assigned the project to a developer.",
+        initiated_by: context.userId,
+      });
+      if (newAssignee) {
+        await supabaseAdmin.from("notifications").insert({
+          user_id: newAssignee,
+          type: "assignment",
+          title: "New project assigned",
+          body: `An admin assigned order ${orderId.slice(0, 8)} to you.`,
+          link: `/developer/orders/${orderId}`,
+        });
+      }
+      if (previousAssignee && previousAssignee !== newAssignee) {
+        await supabaseAdmin.from("notifications").insert({
+          user_id: previousAssignee,
+          type: "assignment",
+          title: "Project reassigned",
+          body: `Order ${orderId.slice(0, 8)} has been moved to another developer.`,
+        });
+      }
+    }
+
     return { ok: true };
+  });
+
+export const adminBackfillAssignments = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    await assertAdmin(context.supabase, context.userId);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { autoAssignOrderToDeveloper } = await import("@/lib/payments.server");
+
+    const { data: orders, error } = await supabaseAdmin
+      .from("orders")
+      .select("id")
+      .is("assigned_to", null)
+      .in("status", ["paid", "requirements_pending", "in_progress", "review"] as any);
+    if (error) throw new Error(error.message);
+
+    let assigned = 0;
+    let skipped = 0;
+    for (const o of orders ?? []) {
+      const pick = await autoAssignOrderToDeveloper(o.id, {
+        trigger: "admin_backfill",
+        initiatedBy: context.userId,
+        reason: "Admin bulk backfill of unassigned paid projects.",
+      });
+      if (pick) assigned++;
+      else skipped++;
+    }
+    return { ok: true, assigned, skipped, total: (orders ?? []).length };
   });
 
 export const adminDeleteOrder = createServerFn({ method: "POST" })
