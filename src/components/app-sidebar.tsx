@@ -1,5 +1,5 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { LayoutDashboard, FolderKanban, MessagesSquare, FolderDown, Receipt, Star, Settings, ShieldCheck, Plus } from "lucide-react";
+import { LayoutDashboard, FolderKanban, MessagesSquare, FolderDown, Receipt, Star, Settings, ShieldCheck, Plus, Code2 } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -24,7 +24,7 @@ const nav = [
   { title: "Settings", to: "/settings", icon: Settings },
 ] as const;
 
-export function AppSidebar({ isAdmin }: { isAdmin?: boolean }) {
+export function AppSidebar({ isAdmin, isDeveloper }: { isAdmin?: boolean; isDeveloper?: boolean }) {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
 
   return (
@@ -72,6 +72,24 @@ export function AppSidebar({ isAdmin }: { isAdmin?: boolean }) {
                     <Link to="/admin" className="flex items-center gap-2">
                       <ShieldCheck className="h-4 w-4" />
                       <span>Admin panel</span>
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        )}
+
+        {isDeveloper && (
+          <SidebarGroup>
+            <SidebarGroupLabel>Developer</SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                <SidebarMenuItem>
+                  <SidebarMenuButton asChild isActive={pathname.startsWith("/developer")}>
+                    <Link to="/developer" className="flex items-center gap-2">
+                      <Code2 className="h-4 w-4" />
+                      <span>Developer workspace</span>
                     </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>

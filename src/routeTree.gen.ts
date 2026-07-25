@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
+import { Route as DeveloperLoginRouteImport } from './routes/developer-login'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AdminLoginRouteImport } from './routes/admin-login'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
@@ -20,13 +21,16 @@ import { Route as AuthenticatedReviewsRouteImport } from './routes/_authenticate
 import { Route as AuthenticatedProjectsRouteImport } from './routes/_authenticated/projects'
 import { Route as AuthenticatedMessagesRouteImport } from './routes/_authenticated/messages'
 import { Route as AuthenticatedFilesRouteImport } from './routes/_authenticated/files'
+import { Route as AuthenticatedDeveloperRouteImport } from './routes/_authenticated/developer'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedBillingRouteImport } from './routes/_authenticated/billing'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as AuthenticatedMessagesIndexRouteImport } from './routes/_authenticated/messages.index'
+import { Route as AuthenticatedDeveloperIndexRouteImport } from './routes/_authenticated/developer.index'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin.index'
 import { Route as AuthenticatedOrdersIdRouteImport } from './routes/_authenticated/orders.$id'
 import { Route as AuthenticatedMessagesIdRouteImport } from './routes/_authenticated/messages.$id'
+import { Route as AuthenticatedDeveloperProjectsRouteImport } from './routes/_authenticated/developer.projects'
 import { Route as AuthenticatedCheckoutPackageRouteImport } from './routes/_authenticated/checkout.$package'
 import { Route as AuthenticatedAdminUsersRouteImport } from './routes/_authenticated/admin.users'
 import { Route as AuthenticatedAdminReportsRouteImport } from './routes/_authenticated/admin.reports'
@@ -37,6 +41,7 @@ import { Route as AuthenticatedAdminContentRouteImport } from './routes/_authent
 import { Route as LovableEmailAuthWebhookRouteImport } from './routes/lovable/email/auth/webhook'
 import { Route as LovableEmailAuthPreviewRouteImport } from './routes/lovable/email/auth/preview'
 import { Route as ApiPublicWebhooksCashfreeRouteImport } from './routes/api/public/webhooks/cashfree'
+import { Route as AuthenticatedDeveloperOrdersIdRouteImport } from './routes/_authenticated/developer.orders.$id'
 import { Route as AuthenticatedBillingScopeIdRouteImport } from './routes/_authenticated/billing.scope.$id'
 import { Route as AuthenticatedAdminOrdersIdRouteImport } from './routes/_authenticated/admin.orders.$id'
 import { Route as AuthenticatedAdminDevelopersIdRouteImport } from './routes/_authenticated/admin.developers.$id'
@@ -44,6 +49,11 @@ import { Route as AuthenticatedAdminDevelopersIdRouteImport } from './routes/_au
 const ResetPasswordRoute = ResetPasswordRouteImport.update({
   id: '/reset-password',
   path: '/reset-password',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DeveloperLoginRoute = DeveloperLoginRouteImport.update({
+  id: '/developer-login',
+  path: '/developer-login',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthRoute = AuthRouteImport.update({
@@ -95,6 +105,11 @@ const AuthenticatedFilesRoute = AuthenticatedFilesRouteImport.update({
   path: '/files',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedDeveloperRoute = AuthenticatedDeveloperRouteImport.update({
+  id: '/developer',
+  path: '/developer',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
@@ -116,6 +131,12 @@ const AuthenticatedMessagesIndexRoute =
     path: '/',
     getParentRoute: () => AuthenticatedMessagesRoute,
   } as any)
+const AuthenticatedDeveloperIndexRoute =
+  AuthenticatedDeveloperIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => AuthenticatedDeveloperRoute,
+  } as any)
 const AuthenticatedAdminIndexRoute = AuthenticatedAdminIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -131,6 +152,12 @@ const AuthenticatedMessagesIdRoute = AuthenticatedMessagesIdRouteImport.update({
   path: '/$id',
   getParentRoute: () => AuthenticatedMessagesRoute,
 } as any)
+const AuthenticatedDeveloperProjectsRoute =
+  AuthenticatedDeveloperProjectsRouteImport.update({
+    id: '/projects',
+    path: '/projects',
+    getParentRoute: () => AuthenticatedDeveloperRoute,
+  } as any)
 const AuthenticatedCheckoutPackageRoute =
   AuthenticatedCheckoutPackageRouteImport.update({
     id: '/checkout/$package',
@@ -188,6 +215,12 @@ const ApiPublicWebhooksCashfreeRoute =
     path: '/api/public/webhooks/cashfree',
     getParentRoute: () => rootRouteImport,
   } as any)
+const AuthenticatedDeveloperOrdersIdRoute =
+  AuthenticatedDeveloperOrdersIdRouteImport.update({
+    id: '/orders/$id',
+    path: '/orders/$id',
+    getParentRoute: () => AuthenticatedDeveloperRoute,
+  } as any)
 const AuthenticatedBillingScopeIdRoute =
   AuthenticatedBillingScopeIdRouteImport.update({
     id: '/scope/$id',
@@ -211,10 +244,12 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/admin-login': typeof AdminLoginRoute
   '/auth': typeof AuthRoute
+  '/developer-login': typeof DeveloperLoginRoute
   '/reset-password': typeof ResetPasswordRoute
   '/admin': typeof AuthenticatedAdminRouteWithChildren
   '/billing': typeof AuthenticatedBillingRouteWithChildren
   '/dashboard': typeof AuthenticatedDashboardRoute
+  '/developer': typeof AuthenticatedDeveloperRouteWithChildren
   '/files': typeof AuthenticatedFilesRoute
   '/messages': typeof AuthenticatedMessagesRouteWithChildren
   '/projects': typeof AuthenticatedProjectsRoute
@@ -228,13 +263,16 @@ export interface FileRoutesByFullPath {
   '/admin/reports': typeof AuthenticatedAdminReportsRoute
   '/admin/users': typeof AuthenticatedAdminUsersRoute
   '/checkout/$package': typeof AuthenticatedCheckoutPackageRoute
+  '/developer/projects': typeof AuthenticatedDeveloperProjectsRoute
   '/messages/$id': typeof AuthenticatedMessagesIdRoute
   '/orders/$id': typeof AuthenticatedOrdersIdRoute
   '/admin/': typeof AuthenticatedAdminIndexRoute
+  '/developer/': typeof AuthenticatedDeveloperIndexRoute
   '/messages/': typeof AuthenticatedMessagesIndexRoute
   '/admin/developers/$id': typeof AuthenticatedAdminDevelopersIdRoute
   '/admin/orders/$id': typeof AuthenticatedAdminOrdersIdRoute
   '/billing/scope/$id': typeof AuthenticatedBillingScopeIdRoute
+  '/developer/orders/$id': typeof AuthenticatedDeveloperOrdersIdRoute
   '/api/public/webhooks/cashfree': typeof ApiPublicWebhooksCashfreeRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
@@ -243,6 +281,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/admin-login': typeof AdminLoginRoute
   '/auth': typeof AuthRoute
+  '/developer-login': typeof DeveloperLoginRoute
   '/reset-password': typeof ResetPasswordRoute
   '/billing': typeof AuthenticatedBillingRouteWithChildren
   '/dashboard': typeof AuthenticatedDashboardRoute
@@ -258,13 +297,16 @@ export interface FileRoutesByTo {
   '/admin/reports': typeof AuthenticatedAdminReportsRoute
   '/admin/users': typeof AuthenticatedAdminUsersRoute
   '/checkout/$package': typeof AuthenticatedCheckoutPackageRoute
+  '/developer/projects': typeof AuthenticatedDeveloperProjectsRoute
   '/messages/$id': typeof AuthenticatedMessagesIdRoute
   '/orders/$id': typeof AuthenticatedOrdersIdRoute
   '/admin': typeof AuthenticatedAdminIndexRoute
+  '/developer': typeof AuthenticatedDeveloperIndexRoute
   '/messages': typeof AuthenticatedMessagesIndexRoute
   '/admin/developers/$id': typeof AuthenticatedAdminDevelopersIdRoute
   '/admin/orders/$id': typeof AuthenticatedAdminOrdersIdRoute
   '/billing/scope/$id': typeof AuthenticatedBillingScopeIdRoute
+  '/developer/orders/$id': typeof AuthenticatedDeveloperOrdersIdRoute
   '/api/public/webhooks/cashfree': typeof ApiPublicWebhooksCashfreeRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
@@ -275,10 +317,12 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/admin-login': typeof AdminLoginRoute
   '/auth': typeof AuthRoute
+  '/developer-login': typeof DeveloperLoginRoute
   '/reset-password': typeof ResetPasswordRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRouteWithChildren
   '/_authenticated/billing': typeof AuthenticatedBillingRouteWithChildren
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
+  '/_authenticated/developer': typeof AuthenticatedDeveloperRouteWithChildren
   '/_authenticated/files': typeof AuthenticatedFilesRoute
   '/_authenticated/messages': typeof AuthenticatedMessagesRouteWithChildren
   '/_authenticated/projects': typeof AuthenticatedProjectsRoute
@@ -292,13 +336,16 @@ export interface FileRoutesById {
   '/_authenticated/admin/reports': typeof AuthenticatedAdminReportsRoute
   '/_authenticated/admin/users': typeof AuthenticatedAdminUsersRoute
   '/_authenticated/checkout/$package': typeof AuthenticatedCheckoutPackageRoute
+  '/_authenticated/developer/projects': typeof AuthenticatedDeveloperProjectsRoute
   '/_authenticated/messages/$id': typeof AuthenticatedMessagesIdRoute
   '/_authenticated/orders/$id': typeof AuthenticatedOrdersIdRoute
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
+  '/_authenticated/developer/': typeof AuthenticatedDeveloperIndexRoute
   '/_authenticated/messages/': typeof AuthenticatedMessagesIndexRoute
   '/_authenticated/admin/developers/$id': typeof AuthenticatedAdminDevelopersIdRoute
   '/_authenticated/admin/orders/$id': typeof AuthenticatedAdminOrdersIdRoute
   '/_authenticated/billing/scope/$id': typeof AuthenticatedBillingScopeIdRoute
+  '/_authenticated/developer/orders/$id': typeof AuthenticatedDeveloperOrdersIdRoute
   '/api/public/webhooks/cashfree': typeof ApiPublicWebhooksCashfreeRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
@@ -309,10 +356,12 @@ export interface FileRouteTypes {
     | '/'
     | '/admin-login'
     | '/auth'
+    | '/developer-login'
     | '/reset-password'
     | '/admin'
     | '/billing'
     | '/dashboard'
+    | '/developer'
     | '/files'
     | '/messages'
     | '/projects'
@@ -326,13 +375,16 @@ export interface FileRouteTypes {
     | '/admin/reports'
     | '/admin/users'
     | '/checkout/$package'
+    | '/developer/projects'
     | '/messages/$id'
     | '/orders/$id'
     | '/admin/'
+    | '/developer/'
     | '/messages/'
     | '/admin/developers/$id'
     | '/admin/orders/$id'
     | '/billing/scope/$id'
+    | '/developer/orders/$id'
     | '/api/public/webhooks/cashfree'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
@@ -341,6 +393,7 @@ export interface FileRouteTypes {
     | '/'
     | '/admin-login'
     | '/auth'
+    | '/developer-login'
     | '/reset-password'
     | '/billing'
     | '/dashboard'
@@ -356,13 +409,16 @@ export interface FileRouteTypes {
     | '/admin/reports'
     | '/admin/users'
     | '/checkout/$package'
+    | '/developer/projects'
     | '/messages/$id'
     | '/orders/$id'
     | '/admin'
+    | '/developer'
     | '/messages'
     | '/admin/developers/$id'
     | '/admin/orders/$id'
     | '/billing/scope/$id'
+    | '/developer/orders/$id'
     | '/api/public/webhooks/cashfree'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
@@ -372,10 +428,12 @@ export interface FileRouteTypes {
     | '/_authenticated'
     | '/admin-login'
     | '/auth'
+    | '/developer-login'
     | '/reset-password'
     | '/_authenticated/admin'
     | '/_authenticated/billing'
     | '/_authenticated/dashboard'
+    | '/_authenticated/developer'
     | '/_authenticated/files'
     | '/_authenticated/messages'
     | '/_authenticated/projects'
@@ -389,13 +447,16 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/reports'
     | '/_authenticated/admin/users'
     | '/_authenticated/checkout/$package'
+    | '/_authenticated/developer/projects'
     | '/_authenticated/messages/$id'
     | '/_authenticated/orders/$id'
     | '/_authenticated/admin/'
+    | '/_authenticated/developer/'
     | '/_authenticated/messages/'
     | '/_authenticated/admin/developers/$id'
     | '/_authenticated/admin/orders/$id'
     | '/_authenticated/billing/scope/$id'
+    | '/_authenticated/developer/orders/$id'
     | '/api/public/webhooks/cashfree'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
@@ -406,6 +467,7 @@ export interface RootRouteChildren {
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AdminLoginRoute: typeof AdminLoginRoute
   AuthRoute: typeof AuthRoute
+  DeveloperLoginRoute: typeof DeveloperLoginRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   CheckoutReturnRoute: typeof CheckoutReturnRoute
   ApiPublicWebhooksCashfreeRoute: typeof ApiPublicWebhooksCashfreeRoute
@@ -420,6 +482,13 @@ declare module '@tanstack/react-router' {
       path: '/reset-password'
       fullPath: '/reset-password'
       preLoaderRoute: typeof ResetPasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/developer-login': {
+      id: '/developer-login'
+      path: '/developer-login'
+      fullPath: '/developer-login'
+      preLoaderRoute: typeof DeveloperLoginRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/auth': {
@@ -492,6 +561,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedFilesRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/developer': {
+      id: '/_authenticated/developer'
+      path: '/developer'
+      fullPath: '/developer'
+      preLoaderRoute: typeof AuthenticatedDeveloperRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/dashboard': {
       id: '/_authenticated/dashboard'
       path: '/dashboard'
@@ -520,6 +596,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedMessagesIndexRouteImport
       parentRoute: typeof AuthenticatedMessagesRoute
     }
+    '/_authenticated/developer/': {
+      id: '/_authenticated/developer/'
+      path: '/'
+      fullPath: '/developer/'
+      preLoaderRoute: typeof AuthenticatedDeveloperIndexRouteImport
+      parentRoute: typeof AuthenticatedDeveloperRoute
+    }
     '/_authenticated/admin/': {
       id: '/_authenticated/admin/'
       path: '/'
@@ -540,6 +623,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/messages/$id'
       preLoaderRoute: typeof AuthenticatedMessagesIdRouteImport
       parentRoute: typeof AuthenticatedMessagesRoute
+    }
+    '/_authenticated/developer/projects': {
+      id: '/_authenticated/developer/projects'
+      path: '/projects'
+      fullPath: '/developer/projects'
+      preLoaderRoute: typeof AuthenticatedDeveloperProjectsRouteImport
+      parentRoute: typeof AuthenticatedDeveloperRoute
     }
     '/_authenticated/checkout/$package': {
       id: '/_authenticated/checkout/$package'
@@ -610,6 +700,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/api/public/webhooks/cashfree'
       preLoaderRoute: typeof ApiPublicWebhooksCashfreeRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/developer/orders/$id': {
+      id: '/_authenticated/developer/orders/$id'
+      path: '/orders/$id'
+      fullPath: '/developer/orders/$id'
+      preLoaderRoute: typeof AuthenticatedDeveloperOrdersIdRouteImport
+      parentRoute: typeof AuthenticatedDeveloperRoute
     }
     '/_authenticated/billing/scope/$id': {
       id: '/_authenticated/billing/scope/$id'
@@ -698,6 +795,24 @@ const AuthenticatedBillingRouteChildren: AuthenticatedBillingRouteChildren = {
 const AuthenticatedBillingRouteWithChildren =
   AuthenticatedBillingRoute._addFileChildren(AuthenticatedBillingRouteChildren)
 
+interface AuthenticatedDeveloperRouteChildren {
+  AuthenticatedDeveloperProjectsRoute: typeof AuthenticatedDeveloperProjectsRoute
+  AuthenticatedDeveloperIndexRoute: typeof AuthenticatedDeveloperIndexRoute
+  AuthenticatedDeveloperOrdersIdRoute: typeof AuthenticatedDeveloperOrdersIdRoute
+}
+
+const AuthenticatedDeveloperRouteChildren: AuthenticatedDeveloperRouteChildren =
+  {
+    AuthenticatedDeveloperProjectsRoute: AuthenticatedDeveloperProjectsRoute,
+    AuthenticatedDeveloperIndexRoute: AuthenticatedDeveloperIndexRoute,
+    AuthenticatedDeveloperOrdersIdRoute: AuthenticatedDeveloperOrdersIdRoute,
+  }
+
+const AuthenticatedDeveloperRouteWithChildren =
+  AuthenticatedDeveloperRoute._addFileChildren(
+    AuthenticatedDeveloperRouteChildren,
+  )
+
 interface AuthenticatedMessagesRouteChildren {
   AuthenticatedMessagesIdRoute: typeof AuthenticatedMessagesIdRoute
   AuthenticatedMessagesIndexRoute: typeof AuthenticatedMessagesIndexRoute
@@ -717,6 +832,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminRoute: typeof AuthenticatedAdminRouteWithChildren
   AuthenticatedBillingRoute: typeof AuthenticatedBillingRouteWithChildren
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
+  AuthenticatedDeveloperRoute: typeof AuthenticatedDeveloperRouteWithChildren
   AuthenticatedFilesRoute: typeof AuthenticatedFilesRoute
   AuthenticatedMessagesRoute: typeof AuthenticatedMessagesRouteWithChildren
   AuthenticatedProjectsRoute: typeof AuthenticatedProjectsRoute
@@ -730,6 +846,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdminRoute: AuthenticatedAdminRouteWithChildren,
   AuthenticatedBillingRoute: AuthenticatedBillingRouteWithChildren,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
+  AuthenticatedDeveloperRoute: AuthenticatedDeveloperRouteWithChildren,
   AuthenticatedFilesRoute: AuthenticatedFilesRoute,
   AuthenticatedMessagesRoute: AuthenticatedMessagesRouteWithChildren,
   AuthenticatedProjectsRoute: AuthenticatedProjectsRoute,
@@ -747,6 +864,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AdminLoginRoute: AdminLoginRoute,
   AuthRoute: AuthRoute,
+  DeveloperLoginRoute: DeveloperLoginRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   CheckoutReturnRoute: CheckoutReturnRoute,
   ApiPublicWebhooksCashfreeRoute: ApiPublicWebhooksCashfreeRoute,
