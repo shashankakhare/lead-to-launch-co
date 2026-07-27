@@ -25,9 +25,8 @@ export async function notifyPaymentStatus(
 
     const pkg = PACKAGES[order.package as PackageSlug];
     const packageLabel = pkg ? `${pkg.name} — ${pkg.pages}` : String(order.package);
-    const amount = order.currency === "USD"
-      ? `$${order.amount_usd} USD`
-      : `${order.currency} ${order.amount_charged} (≈ $${order.amount_usd} USD)`;
+    const inr = new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR", maximumFractionDigits: 0 });
+    const amount = inr.format(Number(order.amount_usd));
 
     const result = await sendTemplateEmail("payment-status", email, {
       idempotencyKey: `payment-status-${status}-${orderId}`,

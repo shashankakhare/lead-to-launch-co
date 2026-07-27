@@ -11,7 +11,7 @@ export const Route = createFileRoute("/")({
       {
         name: "description",
         content:
-          "Premium WordPress business & portfolio websites for US and UK small businesses. Flat pricing from $299. Delivered in 4 days. Full ownership.",
+          "Premium WordPress business & portfolio websites for US and UK small businesses. Flat pricing from ₹24,999. Delivered in 4 days. Full ownership.",
       },
       { property: "og:title", content: "buildingwebsitenow.com — Live in 4 days" },
       {
@@ -214,7 +214,7 @@ function Pricing() {
     {
       slug: "one_page" as const,
       name: "The Solo",
-      price: "$299",
+      price: "₹24,999",
       blurb: "Perfect for landing pages.",
       cta: "Choose Solo",
       features: ["Professional 1-page design", "Mobile responsive", "Basic SEO setup", "Contact form integration"],
@@ -223,7 +223,7 @@ function Pricing() {
     {
       slug: "five_page" as const,
       name: "The Business",
-      price: "$799",
+      price: "₹64,999",
       blurb: "Comprehensive 5-page site.",
       cta: "Choose Business",
       features: [
@@ -237,7 +237,7 @@ function Pricing() {
     {
       slug: "ten_page" as const,
       name: "The Growth",
-      price: "$1,499",
+      price: "₹1,24,999",
       blurb: "10-page powerhouse.",
       cta: "Choose Growth",
       features: [
