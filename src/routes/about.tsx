@@ -4,13 +4,13 @@ import { Reveal } from "@/components/Reveal";
 export const Route = createFileRoute("/about")({
   head: () => ({
     meta: [
-      { title: "About — buildingwebsitenow.com" },
+      { title: "About — eazybuildwebsite.com" },
       {
         name: "description",
         content:
-          "buildingwebsitenow.com is a WordPress website studio by Icon Computers, Nagpur — shipping business and portfolio sites in 4 days.",
+          "eazybuildwebsite.com is a WordPress website studio by Icon Computers, Nagpur — shipping business and portfolio sites in 4 days.",
       },
-      { property: "og:title", content: "About — buildingwebsitenow.com" },
+      { property: "og:title", content: "About — eazybuildwebsite.com" },
       {
         property: "og:description",
         content:
@@ -33,7 +33,7 @@ function AboutPage() {
           </Link>
           <h1 className="mt-6 text-5xl sm:text-6xl font-extrabold tracking-tighter">About us</h1>
           <p className="mt-6 text-lg text-muted-foreground leading-relaxed">
-            buildingwebsitenow.com is a focused WordPress studio operated by{" "}
+            eazybuildwebsite.com is a focused WordPress studio operated by{" "}
             <span className="text-foreground font-medium">Icon Computers, Nagpur</span>. We build
             fast, hand-crafted business and portfolio websites in 4 days and hand over full
             ownership — no lock-in, no monthly rent for your own site.
@@ -54,7 +54,7 @@ function AboutPage() {
             <h2 className="text-xl font-bold tracking-tight">Parent company</h2>
             <p className="text-muted-foreground">
               Icon Computers has served clients out of Nagpur for years across IT services, web, and
-              custom software. buildingwebsitenow.com is our productised website offering.
+              custom software. eazybuildwebsite.com is our productised website offering.
             </p>
           </section>
 

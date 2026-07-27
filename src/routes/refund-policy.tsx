@@ -4,13 +4,13 @@ import { Reveal } from "@/components/Reveal";
 export const Route = createFileRoute("/refund-policy")({
   head: () => ({
     meta: [
-      { title: "Refund Policy — buildingwebsitenow.com" },
+      { title: "Refund Policy — eazybuildwebsite.com" },
       {
         name: "description",
         content:
-          "Refund terms for buildingwebsitenow.com WordPress website packages, operated by Icon Computers Nagpur. Conditions, eligibility, and how to request a refund.",
+          "Refund terms for eazybuildwebsite.com WordPress website packages, operated by Icon Computers Nagpur. Conditions, eligibility, and how to request a refund.",
       },
-      { property: "og:title", content: "Refund Policy — buildingwebsitenow.com" },
+      { property: "og:title", content: "Refund Policy — eazybuildwebsite.com" },
       {
         property: "og:description",
         content:
@@ -67,7 +67,7 @@ function RefundPage() {
         <div className="mt-12 space-y-10 text-muted-foreground">
           <Section title="Overview">
             <p>
-              <span className="text-foreground font-medium">buildingwebsitenow.com</span>, operated
+              <span className="text-foreground font-medium">eazybuildwebsite.com</span>, operated
               by <span className="text-foreground font-medium">Icon Computers, Nagpur</span>,
               builds custom WordPress business and portfolio websites and delivers them within 4
               days. Because our work is a tailored, time-bound service, refund eligibility depends
@@ -160,7 +160,7 @@ function RefundPage() {
         </div>
 
         <div className="mt-16 pt-8 border-t border-border flex flex-col sm:flex-row justify-between items-center gap-4 text-sm text-muted-foreground">
-          <p>&copy; {new Date().getFullYear()} buildingwebsitenow.com — All rights reserved.</p>
+          <p>&copy; {new Date().getFullYear()} eazybuildwebsite.com — All rights reserved.</p>
           <div className="flex flex-wrap gap-6">
             <Link to="/privacy" className="hover:text-foreground transition-colors">
               Privacy Policy

@@ -4,17 +4,17 @@ import { Reveal } from "@/components/Reveal";
 export const Route = createFileRoute("/privacy")({
   head: () => ({
     meta: [
-      { title: "Privacy Policy — buildingwebsitenow.com" },
+      { title: "Privacy Policy — eazybuildwebsite.com" },
       {
         name: "description",
         content:
-          "How buildingwebsitenow.com, a service of Icon Computers Nagpur, collects, uses, and protects your data when you order a WordPress website.",
+          "How eazybuildwebsite.com, a service of Icon Computers Nagpur, collects, uses, and protects your data when you order a WordPress website.",
       },
-      { property: "og:title", content: "Privacy Policy — buildingwebsitenow.com" },
+      { property: "og:title", content: "Privacy Policy — eazybuildwebsite.com" },
       {
         property: "og:description",
         content:
-          "How buildingwebsitenow.com collects, uses, and protects your data when you order a WordPress website.",
+          "How eazybuildwebsite.com collects, uses, and protects your data when you order a WordPress website.",
       },
       { property: "og:type", content: "article" },
       { name: "twitter:card", content: "summary" },
@@ -67,7 +67,7 @@ function PrivacyPage() {
         <div className="mt-12 space-y-10 text-muted-foreground">
           <Section title="Who we are">
             <p>
-              <span className="text-foreground font-medium">buildingwebsitenow.com</span> is a
+              <span className="text-foreground font-medium">eazybuildwebsite.com</span> is a
               WordPress website development service operated by{" "}
               <span className="text-foreground font-medium">
                 Icon Computers, Nagpur, India
@@ -217,7 +217,7 @@ function PrivacyPage() {
         </div>
 
         <div className="mt-16 pt-8 border-t border-border flex flex-col sm:flex-row justify-between items-center gap-4 text-sm text-muted-foreground">
-          <p>&copy; {new Date().getFullYear()} buildingwebsitenow.com — All rights reserved.</p>
+          <p>&copy; {new Date().getFullYear()} eazybuildwebsite.com — All rights reserved.</p>
           <div className="flex flex-wrap gap-6">
             <Link to="/refund-policy" className="hover:text-foreground transition-colors">
               Refund Policy

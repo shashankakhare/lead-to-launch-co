@@ -7,13 +7,13 @@ import portfolioClinic from "@/assets/portfolio-clinic.jpg";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "buildingwebsitenow.com — Your WordPress site, live in 4 days" },
+      { title: "eazybuildwebsite.com — Your WordPress site, live in 4 days" },
       {
         name: "description",
         content:
           "Premium WordPress business & portfolio websites for US and UK small businesses. Flat pricing from ₹24,999. Delivered in 4 days. Full ownership.",
       },
-      { property: "og:title", content: "buildingwebsitenow.com — Live in 4 days" },
+      { property: "og:title", content: "eazybuildwebsite.com — Live in 4 days" },
       {
         property: "og:description",
         content:
@@ -363,7 +363,7 @@ function StartCTA() {
         <div className="mt-24 pt-14 border-t border-background/10 grid gap-10 md:grid-cols-4 text-sm text-background/60">
           <div className="space-y-3">
             <p className="text-background font-extrabold tracking-tighter text-lg">
-              buildingwebsitenow.com
+              eazybuildwebsite.com
             </p>
             <p className="text-background/50 leading-relaxed">
               WordPress websites for founders and small teams — live in 4 days.
@@ -444,7 +444,7 @@ function StartCTA() {
         </div>
 
         <div className="mt-10 pt-6 border-t border-background/10 text-center text-xs text-background/40">
-          <p>&copy; {new Date().getFullYear()} buildingwebsitenow.com — All rights reserved.</p>
+          <p>&copy; {new Date().getFullYear()} eazybuildwebsite.com — All rights reserved.</p>
         </div>
 
       </div>
