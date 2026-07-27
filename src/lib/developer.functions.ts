@@ -196,12 +196,14 @@ export const resolveRevision = createServerFn({ method: "POST" })
       stage: "Revision addressed",
       message: data.message,
     });
-    await supabaseAdmin.from("notifications").insert({
-      user_id: order.user_id,
-      type: "update",
+    const { notifyProjectEvent } = await import("@/lib/notify.server");
+    await notifyProjectEvent({
+      orderId: data.orderId,
+      eventKey: `revision-addressed-${data.revisionId}`,
       title: "Developer addressed your revision request",
-      body: data.message.slice(0, 140),
-      link: `/orders/${data.orderId}`,
+      message: data.message,
+      audiences: ["client", "admin"],
+      notificationType: "update",
     });
     return { ok: true };
   });
