@@ -360,29 +360,93 @@ function StartCTA() {
             Claim your 4-day slot
           </a>
         </Reveal>
-        <div className="mt-24 pt-10 border-t border-background/10 flex flex-col md:flex-row justify-between items-center gap-6 text-sm text-background/40">
-          <div className="flex flex-col items-center md:items-start gap-1">
-            <p>&copy; {new Date().getFullYear()} buildingwebsitenow.com — All rights reserved.</p>
-            <p>
+        <div className="mt-24 pt-14 border-t border-background/10 grid gap-10 md:grid-cols-4 text-sm text-background/60">
+          <div className="space-y-3">
+            <p className="text-background font-extrabold tracking-tighter text-lg">
+              buildingwebsitenow.com
+            </p>
+            <p className="text-background/50 leading-relaxed">
+              WordPress websites for founders and small teams — live in 4 days.
+            </p>
+            <p className="text-background/40 text-xs">
               A product of{" "}
               <span className="text-background/70 font-medium">Icon Computers, Nagpur</span>
             </p>
           </div>
-          <div className="flex flex-wrap justify-center gap-6 md:gap-8">
-            <Link to="/privacy" className="hover:text-background transition-colors">
-              Privacy Policy
-            </Link>
-            <Link to="/refund-policy" className="hover:text-background transition-colors">
-              Refund Policy
-            </Link>
-            <Link to="/terms" className="hover:text-background transition-colors">
-              Terms &amp; Conditions
-            </Link>
-            <a href="#faq" className="hover:text-background transition-colors">
-              Contact
-            </a>
+
+          <div className="space-y-3">
+            <p className="text-background/40 uppercase tracking-widest text-xs">Product</p>
+            <ul className="space-y-2">
+              <li>
+                <a href="#pricing" className="hover:text-background transition-colors">
+                  Packages
+                </a>
+              </li>
+              <li>
+                <a href="#process" className="hover:text-background transition-colors">
+                  Process
+                </a>
+              </li>
+              <li>
+                <a href="#work" className="hover:text-background transition-colors">
+                  Showcase
+                </a>
+              </li>
+              <li>
+                <a href="#faq" className="hover:text-background transition-colors">
+                  FAQ
+                </a>
+              </li>
+            </ul>
+          </div>
+
+          <div className="space-y-3">
+            <p className="text-background/40 uppercase tracking-widest text-xs">Company</p>
+            <ul className="space-y-2">
+              <li>
+                <Link to="/about" className="hover:text-background transition-colors">
+                  About
+                </Link>
+              </li>
+              <li>
+                <Link to="/contact" className="hover:text-background transition-colors">
+                  Contact
+                </Link>
+              </li>
+              <li>
+                <Link to="/auth" className="hover:text-background transition-colors">
+                  Client login
+                </Link>
+              </li>
+            </ul>
+          </div>
+
+          <div className="space-y-3">
+            <p className="text-background/40 uppercase tracking-widest text-xs">Legal</p>
+            <ul className="space-y-2">
+              <li>
+                <Link to="/privacy" className="hover:text-background transition-colors">
+                  Privacy Policy
+                </Link>
+              </li>
+              <li>
+                <Link to="/refund-policy" className="hover:text-background transition-colors">
+                  Refund Policy
+                </Link>
+              </li>
+              <li>
+                <Link to="/terms" className="hover:text-background transition-colors">
+                  Terms &amp; Conditions
+                </Link>
+              </li>
+            </ul>
           </div>
         </div>
+
+        <div className="mt-10 pt-6 border-t border-background/10 text-center text-xs text-background/40">
+          <p>&copy; {new Date().getFullYear()} buildingwebsitenow.com — All rights reserved.</p>
+        </div>
+
       </div>
     </section>
   );
