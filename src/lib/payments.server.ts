@@ -80,6 +80,8 @@ export async function completePaidOrder(orderId: string, paymentId?: string | nu
     .eq("id", orderId);
   if (orderError) throw new Error(orderError.message);
 
+  const { notifyProjectEvent } = await import("./notify.server");
+
   if (target.isAddon) {
     const { error: addonError } = await supabaseAdmin
       .from("scope_addons")
@@ -88,6 +90,28 @@ export async function completePaidOrder(orderId: string, paymentId?: string | nu
     if (addonError) throw new Error(addonError.message);
 
     await notifyPaymentStatus(orderId, "paid");
+
+    // Fetch addon details so developer + admin see what was purchased.
+    const { data: addon } = await supabaseAdmin
+      .from("scope_addons")
+      .select("kind, title, price_cents, currency")
+      .eq("invoice_order_id", orderId)
+      .maybeSingle();
+    const addonLabel = addon?.title ?? "an add-on";
+    const priceLine = addon
+      ? ` (${new Intl.NumberFormat("en-IN", { style: "currency", currency: addon.currency || "INR", maximumFractionDigits: 0 }).format((addon.price_cents ?? 0) / 100)})`
+      : "";
+
+    await notifyProjectEvent({
+      orderId: target.projectOrderId,
+      eventKey: `addon-paid-${orderId}`,
+      title: `Add-on purchased: ${addonLabel}`,
+      message: `The client paid for ${addonLabel}${priceLine}. Please review the updated scope and continue the project.`,
+      status: "add-on paid",
+      audiences: ["developer", "admin"],
+      notificationType: "addon",
+    });
+
     return { status: "paid", projectOrderId: target.projectOrderId, isAddon: true };
   }
 
@@ -98,6 +122,17 @@ export async function completePaidOrder(orderId: string, paymentId?: string | nu
 
   await autoAssignOrderToDeveloper(orderId);
   await notifyPaymentStatus(orderId, "paid");
+
+  // Additionally notify developer + admin that a new paid project is live.
+  await notifyProjectEvent({
+    orderId,
+    eventKey: `order-paid-${orderId}`,
+    title: "New paid project",
+    message: "A client's payment has been confirmed. The project is now in the queue and awaiting requirements.",
+    status: "requirements_pending",
+    audiences: ["developer", "admin"],
+    notificationType: "status",
+  });
 
   return { status: "requirements_pending", projectOrderId: orderId, isAddon: false };
 }

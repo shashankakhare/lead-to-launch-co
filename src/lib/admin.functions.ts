@@ -87,6 +87,16 @@ export const adminUpdateOrderStatus = createServerFn({ method: "POST" })
       .update({ status: data.status })
       .eq("id", data.orderId);
     if (error) throw new Error(error.message);
+
+    const { notifyProjectEvent } = await import("@/lib/notify.server");
+    await notifyProjectEvent({
+      orderId: data.orderId,
+      eventKey: `admin-status-${data.orderId}-${data.status}-${Date.now()}`,
+      title: `Project status: ${data.status}`,
+      message: `An admin updated the project status to "${data.status}".`,
+      status: data.status,
+      notificationType: "status",
+    });
     return { ok: true };
   });
 
@@ -108,6 +118,16 @@ export const adminPostUpdate = createServerFn({ method: "POST" })
       .from("project_updates")
       .insert({ order_id: data.orderId, stage: data.stage, message: data.message });
     if (error) throw new Error(error.message);
+
+    const { notifyProjectEvent } = await import("@/lib/notify.server");
+    await notifyProjectEvent({
+      orderId: data.orderId,
+      eventKey: `admin-update-${data.orderId}-${Date.now()}`,
+      title: `Update: ${data.stage}`,
+      message: data.message,
+      audiences: ["client", "developer"],
+      notificationType: "update",
+    });
     return { ok: true };
   });
 
@@ -142,18 +162,33 @@ export const adminUpdateOrder = createServerFn({ method: "POST" })
     if (Object.keys(patch).length === 0) return { ok: true };
 
     let previousAssignee: string | null = null;
+    let previousStatus: string | null = null;
     const isAssignmentChange = Object.prototype.hasOwnProperty.call(patch, "assigned_to");
-    if (isAssignmentChange) {
+    const isStatusChange = Object.prototype.hasOwnProperty.call(patch, "status");
+    if (isAssignmentChange || isStatusChange) {
       const { data: current } = await supabaseAdmin
         .from("orders")
-        .select("assigned_to")
+        .select("assigned_to, status")
         .eq("id", orderId)
         .maybeSingle();
       previousAssignee = current?.assigned_to ?? null;
+      previousStatus = current?.status ?? null;
     }
 
     const { error } = await supabaseAdmin.from("orders").update(patch).eq("id", orderId);
     if (error) throw new Error(error.message);
+
+    if (isStatusChange && patch.status && patch.status !== previousStatus) {
+      const { notifyProjectEvent } = await import("@/lib/notify.server");
+      await notifyProjectEvent({
+        orderId,
+        eventKey: `admin-status-${orderId}-${patch.status}-${Date.now()}`,
+        title: `Project status: ${patch.status}`,
+        message: `An admin updated the project status to "${patch.status}".`,
+        status: patch.status,
+        notificationType: "status",
+      });
+    }
 
     if (isAssignmentChange && previousAssignee !== (patch.assigned_to ?? null)) {
       const newAssignee = patch.assigned_to ?? null;
@@ -176,6 +211,16 @@ export const adminUpdateOrder = createServerFn({ method: "POST" })
           title: "New project assigned",
           body: `An admin assigned order ${orderId.slice(0, 8)} to you.`,
           link: `/developer/orders/${orderId}`,
+        });
+        // Email the new developer.
+        const { notifyProjectEvent } = await import("@/lib/notify.server");
+        await notifyProjectEvent({
+          orderId,
+          eventKey: `assigned-${orderId}-${newAssignee}-${Date.now()}`,
+          title: "New project assigned to you",
+          message: "An admin has assigned this project to you. Please review the requirements and begin work.",
+          audiences: ["developer"],
+          notificationType: "assignment",
         });
       }
       if (previousAssignee && previousAssignee !== newAssignee) {
