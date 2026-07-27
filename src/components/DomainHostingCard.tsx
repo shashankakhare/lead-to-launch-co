@@ -96,8 +96,9 @@ export function DomainHostingCard({ orderId, saved }: { orderId: string; saved: 
         return;
       }
       try {
-        const cashfree = await loadCashfree({ mode: getCashfreeMode() });
+        const cashfree = await loadCashfree(res.mode);
         await cashfree.checkout({ paymentSessionId: res.paymentSessionId, redirectTarget: "_self" });
+
       } catch (e: any) {
         toast(e.message ?? "Failed to open checkout");
       }
