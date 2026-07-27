@@ -67,7 +67,7 @@ function OrderDetail() {
         <h1 className="text-2xl font-semibold">{pkg.name} — {pkg.pages}</h1>
         <div className="flex items-center gap-3 text-sm">
           <Badge variant="secondary">{STAGE_LABEL[data.order.status] ?? data.order.status}</Badge>
-          <span className="text-muted-foreground">${Number(data.order.amount_usd).toFixed(0)} USD</span>
+          <span className="text-muted-foreground">{formatInr(Number(data.order.amount_usd))}</span>
         </div>
       </div>
 

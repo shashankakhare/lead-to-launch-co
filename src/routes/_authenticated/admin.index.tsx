@@ -161,7 +161,7 @@ function OverviewPage() {
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className="font-medium">${Number(o.amount_usd).toFixed(0)}</span>
+                  <span className="font-medium">{formatInr(Number(o.amount_usd))}</span>
                   <Badge variant="secondary" className="text-xs">{o.status}</Badge>
                 </div>
               </Link>

@@ -146,7 +146,7 @@ function Dashboard() {
               <div>
                 <div className="text-xs text-muted-foreground">{p.tagline}</div>
                 <div className="text-lg font-semibold">{p.name}</div>
-                <div className="text-2xl font-semibold mt-1">${p.priceUsd}</div>
+                <div className="text-2xl font-semibold mt-1">{formatInr(p.priceUsd)}</div>
                 <div className="text-xs text-muted-foreground">{p.pages}</div>
               </div>
               <Button asChild size="sm" variant="secondary">

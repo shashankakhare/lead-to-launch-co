@@ -74,7 +74,7 @@ function Scope() {
           <Card key={a.kind} className="p-5 flex flex-col gap-3 bg-gradient-to-b from-card to-card/40">
             <div>
               <div className="text-lg font-semibold">{a.title}</div>
-              <div className="text-2xl font-semibold mt-1">${a.priceUsd}</div>
+              <div className="text-2xl font-semibold mt-1">{formatInr(a.priceUsd)}</div>
               <p className="text-xs text-muted-foreground mt-2">{a.description}</p>
             </div>
             <Button

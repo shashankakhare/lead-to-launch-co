@@ -87,7 +87,7 @@ function DevOrderDetail() {
         <h1 className="text-2xl font-semibold">{pkg?.name ?? data.order.package}</h1>
         <div className="flex items-center gap-3 text-sm mt-1">
           <Badge variant="secondary">{data.order.status}</Badge>
-          <span className="text-muted-foreground">${Number(data.order.amount_usd).toFixed(0)} {data.order.currency}</span>
+          <span className="text-muted-foreground">{formatInr(Number(data.order.amount_usd))}</span>
         </div>
       </div>
 

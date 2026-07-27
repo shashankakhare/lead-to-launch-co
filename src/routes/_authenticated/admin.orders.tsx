@@ -134,7 +134,7 @@ function AdminOrders() {
                   </div>
                 </div>
                 <div className="flex items-center gap-3">
-                  <div className="text-sm font-medium">${Number(o.amount_usd).toFixed(0)}</div>
+                  <div className="text-sm font-medium">{formatInr(Number(o.amount_usd))}</div>
                   <Badge variant="secondary">{o.status}</Badge>
                 </div>
               </Card>

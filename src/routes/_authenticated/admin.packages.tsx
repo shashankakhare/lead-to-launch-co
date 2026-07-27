@@ -132,7 +132,7 @@ function PackageEditor({ initial }: { initial: Pkg }) {
         <Field label="Pages label">
           <Input value={p.pages} onChange={(e) => setP({ ...p, pages: e.target.value })} />
         </Field>
-        <Field label="Price (USD)">
+        <Field label="Price (INR)">
           <Input
             type="number"
             value={p.price_usd}
@@ -194,7 +194,7 @@ function AddonEditor({ initial }: { initial: Addon }) {
         <Field label="Title">
           <Input value={a.title} onChange={(e) => setA({ ...a, title: e.target.value })} />
         </Field>
-        <Field label="Price (USD)">
+        <Field label="Price (INR)">
           <Input
             type="number"
             value={a.price_usd}
