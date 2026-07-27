@@ -33,10 +33,19 @@ function AboutPage() {
           </Link>
           <h1 className="mt-6 text-5xl sm:text-6xl font-extrabold tracking-tighter">About us</h1>
           <p className="mt-6 text-lg text-muted-foreground leading-relaxed">
-            eazybuildwebsite.com is a focused WordPress studio operated by{" "}
-            <span className="text-foreground font-medium">Icon Computers, Nagpur</span>. We build
-            fast, hand-crafted business and portfolio websites in 4 days and hand over full
-            ownership — no lock-in, no monthly rent for your own site.
+            eazybuildwebsite.com is operated by{" "}
+            <span className="text-foreground font-medium">Icon Computers, Nagpur</span>{" "}
+            (
+            <a
+              href="https://www.icon-computers.in"
+              className="text-accent font-medium hover:underline"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              www.icon-computers.in
+            </a>
+            ). We build fast, hand-crafted business and portfolio websites in 4 days and hand over
+            full ownership — no lock-in, no monthly rent for your own site.
           </p>
         </Reveal>
 
