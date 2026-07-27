@@ -63,7 +63,16 @@ function AboutPage() {
             <h2 className="text-xl font-bold tracking-tight">Parent company</h2>
             <p className="text-muted-foreground">
               Icon Computers has served clients out of Nagpur for years across IT services, web, and
-              custom software. eazybuildwebsite.com is our productised website offering.
+              custom software (
+              <a
+                href="https://www.icon-computers.in"
+                className="text-accent font-medium hover:underline"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                www.icon-computers.in
+              </a>
+              ). eazybuildwebsite.com is our productised website offering.
             </p>
           </section>
 
