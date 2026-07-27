@@ -206,10 +206,10 @@ function PrivacyPage() {
               This Privacy Policy is maintained by Icon Computers, Nagpur. For questions or
               requests regarding your data, email{" "}
               <a
-                href="mailto:info@digitaldreamsinc.in"
+                href="mailto:info@icon-computers.in"
                 className="text-accent font-medium hover:underline"
               >
-                info@digitaldreamsinc.in
+                info@icon-computers.in
               </a>
               .
             </p>

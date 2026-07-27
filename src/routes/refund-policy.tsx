@@ -119,10 +119,10 @@ function RefundPage() {
             <p>
               To request a refund, email{" "}
               <a
-                href="mailto:info@digitaldreamsinc.in"
+                href="mailto:info@icon-computers.in"
                 className="text-accent font-medium hover:underline"
               >
-                info@digitaldreamsinc.in
+                info@icon-computers.in
               </a>{" "}
               with your order ID and the reason for your request. We will review it within 3
               business days and confirm your eligibility based on the project stage above.
@@ -149,10 +149,10 @@ function RefundPage() {
             <p>
               This Refund Policy is maintained by Icon Computers, Nagpur. For any questions, email{" "}
               <a
-                href="mailto:info@digitaldreamsinc.in"
+                href="mailto:info@icon-computers.in"
                 className="text-accent font-medium hover:underline"
               >
-                info@digitaldreamsinc.in
+                info@icon-computers.in
               </a>
               .
             </p>

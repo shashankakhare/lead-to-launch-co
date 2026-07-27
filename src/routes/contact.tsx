@@ -41,10 +41,10 @@ function ContactPage() {
           <div className="rounded-2xl border border-border p-6 space-y-2">
             <p className="text-xs uppercase tracking-widest text-muted-foreground">Email</p>
             <a
-              href="mailto:info@digitaldreamsinc.in"
+              href="mailto:info@icon-computers.in"
               className="text-lg font-semibold hover:underline break-all"
             >
-              info@digitaldreamsinc.in
+              info@icon-computers.in
             </a>
           </div>
           <div className="rounded-2xl border border-border p-6 space-y-2">
