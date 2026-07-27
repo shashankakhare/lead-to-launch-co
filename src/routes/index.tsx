@@ -49,7 +49,7 @@ function Nav() {
       <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
         <div className="flex items-center gap-8">
           <a href="#top" className="font-extrabold tracking-tighter text-xl">
-            BUILDING<span className="text-accent">.</span>
+            eazybuildwebsite<span className="text-accent">.</span>
           </a>
           <div className="hidden md:flex items-center gap-6 text-sm font-medium text-muted-foreground">
             <a href="#process" className="hover:text-foreground transition-colors">Process</a>

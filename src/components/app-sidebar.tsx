@@ -32,9 +32,9 @@ export function AppSidebar({ isAdmin, isDeveloper }: { isAdmin?: boolean; isDeve
       <SidebarHeader className="px-3 py-4">
         <Link to="/dashboard" className="flex items-center gap-2 px-2">
           <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-primary to-primary/50 grid place-items-center text-primary-foreground font-bold text-sm">
-            B
+            e
           </div>
-          <span className="font-semibold tracking-tight text-sm">BuildingWebsiteNow</span>
+          <span className="font-semibold tracking-tight text-sm">eazybuildwebsite</span>
         </Link>
       </SidebarHeader>
       <SidebarContent>
