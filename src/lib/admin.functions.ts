@@ -87,6 +87,16 @@ export const adminUpdateOrderStatus = createServerFn({ method: "POST" })
       .update({ status: data.status })
       .eq("id", data.orderId);
     if (error) throw new Error(error.message);
+
+    const { notifyProjectEvent } = await import("@/lib/notify.server");
+    await notifyProjectEvent({
+      orderId: data.orderId,
+      eventKey: `admin-status-${data.orderId}-${data.status}-${Date.now()}`,
+      title: `Project status: ${data.status}`,
+      message: `An admin updated the project status to "${data.status}".`,
+      status: data.status,
+      notificationType: "status",
+    });
     return { ok: true };
   });
 
@@ -108,6 +118,16 @@ export const adminPostUpdate = createServerFn({ method: "POST" })
       .from("project_updates")
       .insert({ order_id: data.orderId, stage: data.stage, message: data.message });
     if (error) throw new Error(error.message);
+
+    const { notifyProjectEvent } = await import("@/lib/notify.server");
+    await notifyProjectEvent({
+      orderId: data.orderId,
+      eventKey: `admin-update-${data.orderId}-${Date.now()}`,
+      title: `Update: ${data.stage}`,
+      message: data.message,
+      audiences: ["client", "developer"],
+      notificationType: "update",
+    });
     return { ok: true };
   });
 
