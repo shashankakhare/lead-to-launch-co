@@ -2,9 +2,9 @@ import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
-import { load as loadCashfree } from "@cashfreepayments/cashfree-js";
+import { loadCashfree } from "@/lib/cashfree-client";
 import { searchDomains, listHostingPlans, saveDomainChoice, purchaseDomainHosting } from "@/lib/domain.functions";
-import { getCashfreeMode } from "@/lib/cashfree-client";
+
 import { formatInr } from "@/lib/packages";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";

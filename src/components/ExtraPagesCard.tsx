@@ -2,9 +2,9 @@ import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
-import { load as loadCashfree } from "@cashfreepayments/cashfree-js";
+import { loadCashfree } from "@/lib/cashfree-client";
 import { purchaseAddon } from "@/lib/scope.functions";
-import { getCashfreeMode } from "@/lib/cashfree-client";
+
 import { SCOPE_ADDONS, formatInr } from "@/lib/packages";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
