@@ -2,7 +2,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { createCheckout } from "@/lib/orders.functions";
-import { getPackage, type PackageSlug } from "@/lib/packages";
+import { getPackage, formatInr, type PackageSlug } from "@/lib/packages";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { loadCashfree } from "@/lib/cashfree-client";
@@ -14,7 +14,7 @@ export const Route = createFileRoute("/_authenticated/checkout/$package")({
 
 function formatCharge(c: { amount: number; currency: string }) {
   try {
-    return new Intl.NumberFormat("en-IN", { style: "currency", currency: c.currency }).format(c.amount);
+    return new Intl.NumberFormat("en-IN", { style: "currency", currency: c.currency, maximumFractionDigits: 0 }).format(c.amount);
   } catch {
     return `${c.amount.toFixed(2)} ${c.currency}`;
   }
@@ -77,9 +77,9 @@ function Checkout() {
         <div>
           <div className="text-sm text-muted-foreground">{pkg.tagline}</div>
           <h1 className="text-2xl font-semibold">{pkg.name}</h1>
-          <div className="text-3xl font-semibold mt-2">${pkg.priceUsd} USD</div>
+          <div className="text-3xl font-semibold mt-2">{formatInr(pkg.priceUsd)}</div>
           <div className="text-xs text-muted-foreground">{pkg.pages} · Live in 4 days</div>
-          {charge && charge.currency !== "USD" && (
+          {charge && charge.currency !== "INR" && (
             <div className="text-sm text-muted-foreground mt-1">
               ≈ {formatCharge(charge)} charged at checkout
             </div>

@@ -166,7 +166,7 @@ export const template = {
     name: 'Alex',
     orderId: 'ord_1a2b3c4d',
     packageLabel: '5-page website',
-    amount: '$799 USD',
+    amount: '₹64,999',
     status: 'paid',
     nextStepUrl: 'https://eazybuildwebsite.com/dashboard',
   },

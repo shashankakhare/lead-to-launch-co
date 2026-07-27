@@ -4,7 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { ArrowRight, MessageSquare, Receipt, Sparkles, Star, Upload } from "lucide-react";
 import { listMyOrders } from "@/lib/orders.functions";
 import { listMyNotifications } from "@/lib/notifications.functions";
-import { PACKAGES } from "@/lib/packages";
+import { PACKAGES, formatInr } from "@/lib/packages";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -146,7 +146,7 @@ function Dashboard() {
               <div>
                 <div className="text-xs text-muted-foreground">{p.tagline}</div>
                 <div className="text-lg font-semibold">{p.name}</div>
-                <div className="text-2xl font-semibold mt-1">${p.priceUsd}</div>
+                <div className="text-2xl font-semibold mt-1">{formatInr(p.priceUsd)}</div>
                 <div className="text-xs text-muted-foreground">{p.pages}</div>
               </div>
               <Button asChild size="sm" variant="secondary">

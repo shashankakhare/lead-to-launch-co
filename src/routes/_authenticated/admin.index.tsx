@@ -2,7 +2,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { getAdminOverview } from "@/lib/admin-stats.functions";
-import { PACKAGES } from "@/lib/packages";
+import { PACKAGES, formatInr } from "@/lib/packages";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -161,7 +161,7 @@ function OverviewPage() {
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className="font-medium">${Number(o.amount_usd).toFixed(0)}</span>
+                  <span className="font-medium">{formatInr(Number(o.amount_usd))}</span>
                   <Badge variant="secondary" className="text-xs">{o.status}</Badge>
                 </div>
               </Link>

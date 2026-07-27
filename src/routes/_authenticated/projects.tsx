@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery } from "@tanstack/react-query";
 import { listMyOrders } from "@/lib/orders.functions";
-import { PACKAGES } from "@/lib/packages";
+import { PACKAGES, formatInr } from "@/lib/packages";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -59,7 +59,7 @@ function Projects() {
                   </div>
                 </div>
                 <div className="flex items-center gap-3 shrink-0">
-                  <div className="text-sm font-medium">${Number(o.amount_usd).toFixed(0)}</div>
+                  <div className="text-sm font-medium">{formatInr(Number(o.amount_usd))}</div>
                   <Badge variant="secondary">{STATUS_LABEL[o.status] ?? o.status}</Badge>
                 </div>
               </Card>

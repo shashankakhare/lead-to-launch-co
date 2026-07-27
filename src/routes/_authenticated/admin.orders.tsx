@@ -4,7 +4,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState, useMemo } from "react";
 import { toast } from "sonner";
 import { listAllOrders, adminBackfillAssignments } from "@/lib/admin.functions";
-import { PACKAGES } from "@/lib/packages";
+import { PACKAGES, formatInr } from "@/lib/packages";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
@@ -134,7 +134,7 @@ function AdminOrders() {
                   </div>
                 </div>
                 <div className="flex items-center gap-3">
-                  <div className="text-sm font-medium">${Number(o.amount_usd).toFixed(0)}</div>
+                  <div className="text-sm font-medium">{formatInr(Number(o.amount_usd))}</div>
                   <Badge variant="secondary">{o.status}</Badge>
                 </div>
               </Card>

@@ -4,7 +4,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { getMyOrder, saveRequirements, rateOrder, syncOrderStatus, requestRevision, approveOrder } from "@/lib/orders.functions";
-import { PACKAGES } from "@/lib/packages";
+import { PACKAGES, formatInr } from "@/lib/packages";
 import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -67,7 +67,7 @@ function OrderDetail() {
         <h1 className="text-2xl font-semibold">{pkg.name} — {pkg.pages}</h1>
         <div className="flex items-center gap-3 text-sm">
           <Badge variant="secondary">{STAGE_LABEL[data.order.status] ?? data.order.status}</Badge>
-          <span className="text-muted-foreground">${Number(data.order.amount_usd).toFixed(0)} USD</span>
+          <span className="text-muted-foreground">{formatInr(Number(data.order.amount_usd))}</span>
         </div>
       </div>
 

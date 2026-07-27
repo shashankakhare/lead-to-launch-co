@@ -1,5 +1,10 @@
 export type PackageSlug = "one_page" | "five_page" | "ten_page";
 
+/**
+ * Prices are in INR (Indian Rupees). The field is named `priceUsd` for
+ * historical reasons — the DB column `amount_usd` also stores the INR amount.
+ * Cashfree charges the same value directly in INR.
+ */
 export const PACKAGES: Record<
   PackageSlug,
   { slug: PackageSlug; name: string; pages: string; priceUsd: number; tagline: string; features: string[] }
@@ -8,7 +13,7 @@ export const PACKAGES: Record<
     slug: "one_page",
     name: "Starter",
     pages: "1 page",
-    priceUsd: 299,
+    priceUsd: 24999,
     tagline: "Perfect landing page",
     features: [
       "1-page WordPress site",
@@ -23,7 +28,7 @@ export const PACKAGES: Record<
     slug: "five_page",
     name: "Business",
     pages: "5 pages",
-    priceUsd: 799,
+    priceUsd: 64999,
     tagline: "Most popular",
     features: [
       "5-page WordPress site",
@@ -39,7 +44,7 @@ export const PACKAGES: Record<
     slug: "ten_page",
     name: "Portfolio+",
     pages: "10 pages",
-    priceUsd: 1499,
+    priceUsd: 124999,
     tagline: "For agencies & studios",
     features: [
       "10-page WordPress site",
@@ -67,19 +72,32 @@ export const SCOPE_ADDONS: Record<
     kind: "extra_page",
     title: "Extra page",
     description: "Add one more designed & developed page to your site.",
-    priceUsd: 99,
+    priceUsd: 7999,
   },
   extra_revision: {
     kind: "extra_revision",
     title: "Extra revision round",
     description: "One additional round of design/content revisions.",
-    priceUsd: 49,
+    priceUsd: 3999,
   },
   rush: {
     kind: "rush",
     title: "Rush 2-day delivery",
     description: "Fast-track your build to 2 days instead of 4.",
-    priceUsd: 199,
+    priceUsd: 15999,
   },
 };
 
+/** Format an INR amount using Indian numbering (e.g. ₹24,999). */
+export function formatInr(amount: number | string): string {
+  const n = typeof amount === "number" ? amount : Number(amount) || 0;
+  try {
+    return new Intl.NumberFormat("en-IN", {
+      style: "currency",
+      currency: "INR",
+      maximumFractionDigits: 0,
+    }).format(n);
+  } catch {
+    return `₹${Math.round(n).toLocaleString("en-IN")}`;
+  }
+}

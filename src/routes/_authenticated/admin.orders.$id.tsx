@@ -12,7 +12,7 @@ import {
   listAssignmentAuditLog,
 } from "@/lib/admin.functions";
 import { listDevelopers, autoAssignOrder } from "@/lib/admin-developers.functions";
-import { PACKAGES } from "@/lib/packages";
+import { PACKAGES, formatInr } from "@/lib/packages";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -82,7 +82,7 @@ function AdminOrderDetail() {
         <h1 className="text-2xl font-semibold">{pkg?.name ?? data.order.package}</h1>
         <div className="flex items-center gap-3 text-sm mt-1">
           <Badge variant="secondary">{data.order.status}</Badge>
-          <span className="text-muted-foreground">${Number(data.order.amount_usd).toFixed(0)} {data.order.currency}</span>
+          <span className="text-muted-foreground">{formatInr(Number(data.order.amount_usd))}</span>
         </div>
       </div>
 
@@ -360,7 +360,7 @@ function EditOrderCard({ order }: { order: OrderRow }) {
           </Select>
         </div>
         <div className="space-y-1">
-          <Label>Amount (USD)</Label>
+          <Label>Amount (INR)</Label>
           <Input type="number" value={amount} onChange={(e) => setAmount(Number(e.target.value))} />
         </div>
         <div className="space-y-1 sm:col-span-2">
