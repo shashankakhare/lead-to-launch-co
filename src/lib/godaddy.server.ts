@@ -28,7 +28,9 @@ export type DomainAvailability = {
  * GoDaddy `price` is expressed in micros of the returned currency (1 USD = 1,000,000).
  */
 export async function checkDomain(domain: string): Promise<DomainAvailability> {
-  const url = `${baseUrl()}/v1/domains/available?domain=${encodeURIComponent(domain)}&checkType=FAST&forTransfer=false`;
+  // FULL check returns price + currency; FAST only returns availability, which
+  // leaves the UI unable to charge for the domain (Buy button stays disabled).
+  const url = `${baseUrl()}/v1/domains/available?domain=${encodeURIComponent(domain)}&checkType=FULL&forTransfer=false`;
   const res = await fetch(url, {
     headers: { Authorization: authHeader(), Accept: "application/json" },
   });
