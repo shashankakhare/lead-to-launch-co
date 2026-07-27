@@ -79,13 +79,13 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "buildingwebsitenow.com — Your WordPress site, live in 4 days" },
+      { title: "eazybuildwebsite.com — Your WordPress site, live in 4 days" },
       {
         name: "description",
         content:
           "Premium WordPress business & portfolio websites for US and UK small businesses. Flat pricing from $299. Delivered in 4 days. Full ownership.",
       },
-      { name: "author", content: "buildingwebsitenow.com" },
+      { name: "author", content: "eazybuildwebsite.com" },
     ],
     links: [
       {

@@ -4,16 +4,16 @@ import { Reveal } from "@/components/Reveal";
 export const Route = createFileRoute("/contact")({
   head: () => ({
     meta: [
-      { title: "Contact — buildingwebsitenow.com" },
+      { title: "Contact — eazybuildwebsite.com" },
       {
         name: "description",
         content:
-          "Get in touch with buildingwebsitenow.com — a WordPress website studio by Icon Computers, Nagpur.",
+          "Get in touch with eazybuildwebsite.com — a WordPress website studio by Icon Computers, Nagpur.",
       },
-      { property: "og:title", content: "Contact — buildingwebsitenow.com" },
+      { property: "og:title", content: "Contact — eazybuildwebsite.com" },
       {
         property: "og:description",
-        content: "Reach out to buildingwebsitenow.com for a 4-day WordPress website.",
+        content: "Reach out to eazybuildwebsite.com for a 4-day WordPress website.",
       },
       { property: "og:type", content: "article" },
       { name: "twitter:card", content: "summary" },
@@ -51,6 +51,14 @@ function ContactPage() {
             <p className="text-xs uppercase tracking-widest text-muted-foreground">Parent company</p>
             <p className="text-lg font-semibold">Icon Computers</p>
             <p className="text-sm text-muted-foreground">Nagpur, India</p>
+            <a
+              href="https://www.icon-computers.in"
+              className="text-sm text-accent font-medium hover:underline"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              www.icon-computers.in
+            </a>
           </div>
         </div>
 

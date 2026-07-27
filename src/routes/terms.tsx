@@ -4,17 +4,17 @@ import { Reveal } from "@/components/Reveal";
 export const Route = createFileRoute("/terms")({
   head: () => ({
     meta: [
-      { title: "Terms & Conditions — buildingwebsitenow.com" },
+      { title: "Terms & Conditions — eazybuildwebsite.com" },
       {
         name: "description",
         content:
-          "Terms and conditions for using buildingwebsitenow.com, a WordPress website development service by Icon Computers, Nagpur.",
+          "Terms and conditions for using eazybuildwebsite.com, a WordPress website development service by Icon Computers, Nagpur.",
       },
-      { property: "og:title", content: "Terms & Conditions — buildingwebsitenow.com" },
+      { property: "og:title", content: "Terms & Conditions — eazybuildwebsite.com" },
       {
         property: "og:description",
         content:
-          "The terms governing your use of buildingwebsitenow.com and the WordPress website development services we deliver.",
+          "The terms governing your use of eazybuildwebsite.com and the WordPress website development services we deliver.",
       },
       { property: "og:type", content: "article" },
       { name: "twitter:card", content: "summary" },
@@ -68,7 +68,7 @@ function TermsPage() {
           <Section title="Agreement">
             <p>
               These Terms &amp; Conditions ("Terms") govern your use of{" "}
-              <span className="text-foreground font-medium">buildingwebsitenow.com</span> and the
+              <span className="text-foreground font-medium">eazybuildwebsite.com</span> and the
               WordPress website development services provided by{" "}
               <span className="text-foreground font-medium">Icon Computers, Nagpur, India</span>{" "}
               ("we", "us", "our"). By creating an account, purchasing a package, or using the
@@ -208,7 +208,7 @@ function TermsPage() {
         </div>
 
         <div className="mt-16 pt-8 border-t border-border flex flex-col sm:flex-row justify-between items-center gap-4 text-sm text-muted-foreground">
-          <p>&copy; {new Date().getFullYear()} buildingwebsitenow.com — All rights reserved.</p>
+          <p>&copy; {new Date().getFullYear()} eazybuildwebsite.com — All rights reserved.</p>
           <div className="flex gap-6">
             <Link to="/privacy" className="hover:text-foreground transition-colors">
               Privacy Policy

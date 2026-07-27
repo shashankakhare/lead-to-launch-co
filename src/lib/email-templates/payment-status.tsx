@@ -50,7 +50,7 @@ const PaymentStatusEmail = ({
       <Preview>{previewText}</Preview>
       <Body style={main}>
         <Container style={container}>
-          <Text style={brand}>buildingwebsitenow.com</Text>
+          <Text style={brand}>eazybuildwebsite.com</Text>
           <Heading style={h1}>{heading}</Heading>
 
           {isPaid ? (
