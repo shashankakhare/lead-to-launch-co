@@ -86,13 +86,31 @@ function OrderDetail() {
       </Card>
 
       {data.order.status !== "pending_payment" && (
-        <ProjectIntakeForm
-          orderId={id}
-          packageSlug={data.order.package as any}
-          initial={data.requirements as any}
-          onSaved={() => qc.invalidateQueries({ queryKey: ["order", id] })}
-        />
+        <>
+          <div className="flex justify-end">
+            <Button asChild variant="outline" size="sm">
+              <Link to="/messages/$id" params={{ id }}>
+                <MessageCircle className="h-4 w-4 mr-1" /> Chat with your developer
+              </Link>
+            </Button>
+          </div>
+
+          <DomainHostingCard
+            orderId={id}
+            saved={(data.requirements as any)?.intake_data?.domain ?? null}
+          />
+
+          <ProjectIntakeForm
+            orderId={id}
+            packageSlug={data.order.package as any}
+            initial={data.requirements as any}
+            onSaved={() => qc.invalidateQueries({ queryKey: ["order", id] })}
+          />
+
+          {data.order.status !== "delivered" && <ExtraPagesCard orderId={id} />}
+        </>
       )}
+
 
       <Card className="p-5 space-y-3">
         <h2 className="font-medium">Updates from your developer</h2>
