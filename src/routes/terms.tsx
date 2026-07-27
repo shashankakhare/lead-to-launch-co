@@ -44,7 +44,7 @@ function TermsPage() {
       <header className="border-b border-border bg-background/80 backdrop-blur-xl">
         <div className="max-w-4xl mx-auto px-6 h-16 flex items-center justify-between">
           <a href="/" className="font-extrabold tracking-tighter text-xl">
-            BUILDING<span className="text-accent">.</span>
+            eazybuildwebsite<span className="text-accent">.</span>
           </a>
           <Link
             to="/"
