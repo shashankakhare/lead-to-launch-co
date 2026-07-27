@@ -322,13 +322,15 @@ export const approveOrder = createServerFn({ method: "POST" })
       message: "You approved the website. The project is now complete.",
     });
 
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    await supabaseAdmin.from("notifications").insert({
-      user_id: order.assigned_to ?? order.user_id,
-      type: "status",
+    const { notifyProjectEvent } = await import("@/lib/notify.server");
+    await notifyProjectEvent({
+      orderId: data.orderId,
+      eventKey: `approved-${data.orderId}`,
       title: "Client approved the project",
-      body: "The project has been marked as delivered.",
-      link: `/developer/orders/${data.orderId}`,
+      message: "The client approved the deliverable. The project is now marked as delivered.",
+      status: "delivered",
+      audiences: ["developer", "admin"],
+      notificationType: "status",
     });
     return { ok: true };
   });
