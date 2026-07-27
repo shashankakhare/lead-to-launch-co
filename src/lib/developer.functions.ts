@@ -126,12 +126,14 @@ export const devPostUpdate = createServerFn({ method: "POST" })
       message: data.message,
     });
     if (error) throw new Error(error.message);
-    await supabaseAdmin.from("notifications").insert({
-      user_id: order.user_id,
-      type: "update",
+    const { notifyProjectEvent } = await import("@/lib/notify.server");
+    await notifyProjectEvent({
+      orderId: data.orderId,
+      eventKey: `dev-update-${data.orderId}-${Date.now()}`,
       title: `Update: ${data.stage}`,
-      body: data.message.slice(0, 140),
-      link: `/orders/${data.orderId}`,
+      message: data.message,
+      audiences: ["client", "admin"],
+      notificationType: "update",
     });
     return { ok: true };
   });
