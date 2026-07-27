@@ -51,6 +51,14 @@ function ContactPage() {
             <p className="text-xs uppercase tracking-widest text-muted-foreground">Parent company</p>
             <p className="text-lg font-semibold">Icon Computers</p>
             <p className="text-sm text-muted-foreground">Nagpur, India</p>
+            <a
+              href="https://www.icon-computers.in"
+              className="text-sm text-accent font-medium hover:underline"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              www.icon-computers.in
+            </a>
           </div>
         </div>
 
