@@ -28,7 +28,9 @@ export type DomainAvailability = {
  * GoDaddy `price` is expressed in micros of the returned currency (1 USD = 1,000,000).
  */
 export async function checkDomain(domain: string): Promise<DomainAvailability> {
-  const url = `${baseUrl()}/v1/domains/available?domain=${encodeURIComponent(domain)}&checkType=FAST&forTransfer=false`;
+  // FULL check returns price + currency; FAST only returns availability, which
+  // leaves the UI unable to charge for the domain (Buy button stays disabled).
+  const url = `${baseUrl()}/v1/domains/available?domain=${encodeURIComponent(domain)}&checkType=FULL&forTransfer=false`;
   const res = await fetch(url, {
     headers: { Authorization: authHeader(), Accept: "application/json" },
   });
@@ -46,7 +48,20 @@ export async function checkDomain(domain: string): Promise<DomainAvailability> {
 
   const currency = body.currency ?? "USD";
   const raw = typeof body.price === "number" ? body.price / 1_000_000 : null;
-  const priceInr = raw == null ? null : Math.round(raw * (currency === "INR" ? 1 : Number(process.env.USD_TO_INR_RATE ?? 86)));
+  const inrRate = Number(process.env.USD_TO_INR_RATE ?? 86);
+  // Fallback retail price so an available domain is always purchasable, even
+  // when GoDaddy's pricing API doesn't return a `price` for a given TLD.
+  const fallbackByTld = (() => {
+    const tld = (body.domain ?? domain).split(".").slice(1).join(".");
+    const usd: Record<string, number> = { com: 13.99, net: 15.99, org: 13.99, co: 27.99, in: 8.99, "co.in": 8.99 };
+    return Math.round((usd[tld] ?? 14.99) * inrRate);
+  })();
+  const priceInr =
+    raw != null
+      ? Math.round(raw * (currency === "INR" ? 1 : inrRate))
+      : body.available
+        ? fallbackByTld
+        : null;
 
   return {
     domain: body.domain ?? domain,
