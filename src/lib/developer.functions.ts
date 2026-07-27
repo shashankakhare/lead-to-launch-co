@@ -94,12 +94,15 @@ export const devUpdateOrderStatus = createServerFn({ method: "POST" })
       stage: `Status: ${data.status}`,
       message: `Your developer marked this project as "${data.status}".`,
     });
-    await supabaseAdmin.from("notifications").insert({
-      user_id: order.user_id,
-      type: "status",
-      title: "Project status updated",
-      body: `Your project is now "${data.status}".`,
-      link: `/orders/${data.orderId}`,
+    const { notifyProjectEvent } = await import("@/lib/notify.server");
+    await notifyProjectEvent({
+      orderId: data.orderId,
+      eventKey: `dev-status-${data.orderId}-${data.status}-${Date.now()}`,
+      title: `Project status: ${data.status}`,
+      message: `Your developer marked this project as "${data.status}".`,
+      status: data.status,
+      audiences: ["client", "admin"],
+      notificationType: "status",
     });
     return { ok: true };
   });
