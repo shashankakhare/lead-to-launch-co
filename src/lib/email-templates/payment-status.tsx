@@ -112,7 +112,7 @@ const PaymentStatusEmail = ({
 
           <Hr style={divider} />
           <Text style={footer}>
-            Questions? Just reply to this email or write to info@digitaldreamsinc.in.
+            Questions? Just reply to this email or write to info@icon-computers.in.
             <br />
             A product of Icon Computers, Nagpur.
           </Text>
