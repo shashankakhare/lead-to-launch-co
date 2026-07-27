@@ -1,5 +1,5 @@
 import { useServerFn } from "@tanstack/react-start";
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
@@ -13,8 +13,11 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { CheckCircle2, MessageSquareWarning } from "lucide-react";
+import { CheckCircle2, MessageSquareWarning, MessageCircle } from "lucide-react";
 import { ProjectIntakeForm } from "@/components/ProjectIntakeForm";
+import { DomainHostingCard } from "@/components/DomainHostingCard";
+import { ExtraPagesCard } from "@/components/ExtraPagesCard";
+
 
 export const Route = createFileRoute("/_authenticated/orders/$id")({
   head: () => ({ meta: [{ title: "Project · Building Website Now" }] }),
@@ -83,13 +86,31 @@ function OrderDetail() {
       </Card>
 
       {data.order.status !== "pending_payment" && (
-        <ProjectIntakeForm
-          orderId={id}
-          packageSlug={data.order.package as any}
-          initial={data.requirements as any}
-          onSaved={() => qc.invalidateQueries({ queryKey: ["order", id] })}
-        />
+        <>
+          <div className="flex justify-end">
+            <Button asChild variant="outline" size="sm">
+              <Link to="/messages/$id" params={{ id }}>
+                <MessageCircle className="h-4 w-4 mr-1" /> Chat with your developer
+              </Link>
+            </Button>
+          </div>
+
+          <DomainHostingCard
+            orderId={id}
+            saved={(data.requirements as any)?.intake_data?.domain ?? null}
+          />
+
+          <ProjectIntakeForm
+            orderId={id}
+            packageSlug={data.order.package as any}
+            initial={data.requirements as any}
+            onSaved={() => qc.invalidateQueries({ queryKey: ["order", id] })}
+          />
+
+          {data.order.status !== "delivered" && <ExtraPagesCard orderId={id} />}
+        </>
       )}
+
 
       <Card className="p-5 space-y-3">
         <h2 className="font-medium">Updates from your developer</h2>

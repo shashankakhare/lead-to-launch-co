@@ -94,6 +94,42 @@ export type Database = {
           },
         ]
       }
+      hosting_plans_config: {
+        Row: {
+          active: boolean
+          billing_period: string
+          description: string
+          features: string[]
+          name: string
+          price_inr: number
+          slug: string
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          billing_period?: string
+          description?: string
+          features?: string[]
+          name: string
+          price_inr: number
+          slug: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          billing_period?: string
+          description?: string
+          features?: string[]
+          name?: string
+          price_inr?: number
+          slug?: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       messages: {
         Row: {
           attachments: Json

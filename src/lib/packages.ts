@@ -16,14 +16,16 @@ export const PACKAGES: Record<
     priceUsd: 24999,
     tagline: "Perfect landing page",
     features: [
-      "1-page WordPress site",
-      "Custom design",
-      "Mobile responsive",
-      "Contact form",
-      "Basic SEO",
+      "Single-page WordPress site",
+      "Home, About Us / About Dr, Contact Us",
+      "WhatsApp appointment button",
+      "Location / address block with Google Maps",
+      "List of services offered",
+      "Mobile responsive · Basic SEO",
       "Live in 4 days",
     ],
   },
+
   five_page: {
     slug: "five_page",
     name: "Business",
@@ -72,8 +74,9 @@ export const SCOPE_ADDONS: Record<
     kind: "extra_page",
     title: "Extra page",
     description: "Add one more designed & developed page to your site.",
-    priceUsd: 7999,
+    priceUsd: 2000,
   },
+
   extra_revision: {
     kind: "extra_revision",
     title: "Extra revision round",
