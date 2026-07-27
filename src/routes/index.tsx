@@ -372,6 +372,14 @@ function StartCTA() {
               A product of{" "}
               <span className="text-background/70 font-medium">Icon Computers, Nagpur</span>
             </p>
+            <a
+              href="https://www.icon-computers.in"
+              className="text-background/40 text-xs hover:text-background/70 transition-colors"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              www.icon-computers.in
+            </a>
           </div>
 
           <div className="space-y-3">
