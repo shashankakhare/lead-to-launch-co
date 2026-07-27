@@ -12,7 +12,7 @@ import {
   listAssignmentAuditLog,
 } from "@/lib/admin.functions";
 import { listDevelopers, autoAssignOrder } from "@/lib/admin-developers.functions";
-import { PACKAGES } from "@/lib/packages";
+import { PACKAGES, formatInr } from "@/lib/packages";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";

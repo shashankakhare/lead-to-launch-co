@@ -5,7 +5,7 @@ import { useState } from "react";
 import { ArrowLeft, Loader2 } from "lucide-react";
 import { getMyOrder } from "@/lib/orders.functions";
 import { purchaseAddon, listAddonsForOrder } from "@/lib/scope.functions";
-import { PACKAGES, SCOPE_ADDONS, type ScopeAddonKind } from "@/lib/packages";
+import { PACKAGES, SCOPE_ADDONS, formatInr, type ScopeAddonKind } from "@/lib/packages";
 import { openCashfreeCheckout } from "@/lib/cashfree-client";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";

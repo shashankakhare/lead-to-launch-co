@@ -4,7 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { ArrowRight, MessageSquare, Receipt, Sparkles, Star, Upload } from "lucide-react";
 import { listMyOrders } from "@/lib/orders.functions";
 import { listMyNotifications } from "@/lib/notifications.functions";
-import { PACKAGES } from "@/lib/packages";
+import { PACKAGES, formatInr } from "@/lib/packages";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";

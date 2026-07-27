@@ -4,7 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Download, Plus } from "lucide-react";
 import { listMyOrders } from "@/lib/orders.functions";
 import { listMyAddons } from "@/lib/scope.functions";
-import { PACKAGES } from "@/lib/packages";
+import { PACKAGES, formatInr } from "@/lib/packages";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";

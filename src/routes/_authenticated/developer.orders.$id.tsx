@@ -5,7 +5,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { ArrowLeft, PlayCircle, CheckCircle2, XCircle, Clock, MessageSquareWarning } from "lucide-react";
 import { devGetOrder, devUpdateOrderStatus, devPostUpdate, devLogTime, resolveRevision } from "@/lib/developer.functions";
-import { PACKAGES } from "@/lib/packages";
+import { PACKAGES, formatInr } from "@/lib/packages";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
