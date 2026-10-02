@@ -57,12 +57,17 @@ export const saveDomainChoice = createServerFn({ method: "POST" })
     const { supabase, userId } = context;
 
     // Verify order ownership
-    const { data: order } = await supabase
+    const { supabaseAdmin: adminDb } = await import("@/integrations/supabase/client.server");
+    const { data: order } = await adminDb
       .from("orders")
       .select("id, user_id, assigned_to")
       .eq("id", data.orderId)
       .maybeSingle();
-    if (!order || order.user_id !== userId) throw new Error("Order not found");
+    if (!order) {
+      console.error("[domain] project order missing", data.orderId);
+      throw new Error("Project not found — please reopen your project page and try again.");
+    }
+    if (order.user_id !== userId) throw new Error("This project belongs to a different account.");
 
     const { data: req } = await supabase
       .from("project_requirements")
@@ -124,12 +129,17 @@ export const purchaseDomainHosting = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     const { supabase, userId, claims } = context;
 
-    const { data: order } = await supabase
+    const { supabaseAdmin: adminDb } = await import("@/integrations/supabase/client.server");
+    const { data: order } = await adminDb
       .from("orders")
       .select("id, user_id, assigned_to")
       .eq("id", data.orderId)
       .maybeSingle();
-    if (!order || order.user_id !== userId) throw new Error("Order not found");
+    if (!order) {
+      console.error("[domain] project order missing", data.orderId);
+      throw new Error("Project not found — please reopen your project page and try again.");
+    }
+    if (order.user_id !== userId) throw new Error("This project belongs to a different account.");
 
     // Hosting price lookup
     let hostingPrice = 0;
@@ -226,7 +236,7 @@ export const purchaseDomainHosting = createServerFn({ method: "POST" })
       notifyUrl: `${origin}/api/public/webhooks/cashfree`,
     });
 
-    await supabase
+    await adminDb
       .from("orders")
       .update({ cashfree_order_id: cf.orderId, cashfree_payment_session_id: cf.paymentSessionId })
       .eq("id", invoiceOrder.id);
