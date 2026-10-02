@@ -1,6 +1,6 @@
 import { useServerFn } from "@tanstack/react-start";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { createCheckout } from "@/lib/orders.functions";
 import { getPackage, formatInr, type PackageSlug } from "@/lib/packages";
 import { Card } from "@/components/ui/card";
@@ -29,37 +29,34 @@ function Checkout() {
   const [error, setError] = useState<string | null>(null);
   const [charge, setCharge] = useState<{ amount: number; currency: string } | null>(null);
 
+  const startedRef = useRef(false);
   useEffect(() => {
-    if (!pkg) return;
-    let cancelled = false;
+    if (!pkg || startedRef.current) return;
+    startedRef.current = true; // prevent duplicate orders from double effect runs
     setStatus("loading");
     (async () => {
       try {
         const res = await fn({ data: { packageSlug: slug as PackageSlug } });
-        if (cancelled) return;
         if (res.chargeAmount && res.chargeCurrency) {
           setCharge({ amount: res.chargeAmount, currency: res.chargeCurrency });
         }
         if (res.mode === "mock") {
-          // Test/mock payment path: order is already marked paid server-side.
           navigate({ to: "/orders/$id", params: { id: res.orderId } });
           return;
         }
         const cashfree = await loadCashfree(res.mode);
-        if (cancelled) return;
+        // Cashfree's payment page refuses to load inside an embedded frame
+        // (like the editor preview), so open it in a new tab there.
+        const inIframe = window.self !== window.top;
         await cashfree.checkout({
           paymentSessionId: res.paymentSessionId,
-          redirectTarget: "_self",
+          redirectTarget: inIframe ? "_blank" : "_self",
         });
       } catch (e) {
-        if (cancelled) return;
         setStatus("error");
         setError(e instanceof Error ? e.message : "Checkout failed");
       }
     })();
-    return () => {
-      cancelled = true;
-    };
   }, [pkg, slug, fn]);
 
   if (!pkg) {
